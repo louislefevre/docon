@@ -10,9 +10,7 @@ var rootCmd = &cobra.Command{
 	Long:  `Docon is a command line tool used for maintaining Linux dotfiles.`,
 }
 
-func init() {
-	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.config/docon/config.yaml)")
-}
+func init() {}
 
 func ExecuteRoot() {
 	cobra.CheckErr(rootCmd.Execute())

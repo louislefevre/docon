@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -18,8 +19,6 @@ var runCmd = &cobra.Command{
 	},
 }
 
-var configFile string
-
 type Configuration map[string]ConfigGroup
 
 type ConfigGroup struct {
@@ -30,46 +29,51 @@ type ConfigGroup struct {
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.PersistentFlags().StringVar(&configFile, "config", "", "config file (default is $HOME/.config/docon/config.yaml)")
 }
 
 func executeRun() {
-	cobra.CheckErr(initConfig())
+	config, err := initConfig()
+	cobra.CheckErr(err)
+	fmt.Println(config)
 }
 
-func initConfig() error {
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
+func initConfig() (Configuration, error) {
+	if home, err := homedir.Dir(); err == nil {
+		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
 	} else {
-		home, err := homedir.Dir()
-		cobra.CheckErr(err)
-
-		viper.AddConfigPath(fmt.Sprintf("%s/.config/docon/", home))
-		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
+		return nil, fmt.Errorf("failed to find home directory\n%s", err)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return fmt.Errorf("missing config file: %s", err)
-		} else {
-			return fmt.Errorf("an error occurred: %s", err)
-		}
+		return nil, fmt.Errorf("failed to load config file\n%s", err)
 	}
 
 	config := make(Configuration)
 	if err := viper.Unmarshal(&config); err != nil {
-		return fmt.Errorf("cannot parse config file: %s", err)
+		return nil, fmt.Errorf("failed to parse config file\n%s", err)
 	}
 
 	for name, group := range config {
 		if group.Path == "" {
-			return fmt.Errorf("cannot parse config file: %s has no defined path", name)
+			return nil, fmt.Errorf("failed to parse config file\n%s: no defined path", name)
 		} else if _, err := os.Stat(group.Path); os.IsNotExist(err) {
-			return fmt.Errorf("cannot parse config file: %s does not exist", group.Path)
+			return nil, fmt.Errorf("failed to parse config file\n%s", err)
 		}
-		fmt.Println(group.Path)
+
+		for _, file := range group.Include {
+			filePath := filepath.Join(group.Path, file)
+			if _, err := os.Stat(filePath); os.IsNotExist(err) {
+				return nil, fmt.Errorf("failed to parse config file\n%s", err)
+			}
+		}
+
+		for _, file := range group.Exclude {
+			filePath := filepath.Join(group.Path, file)
+			if _, err := os.Stat(filePath); os.IsNotExist(err) {
+				return nil, fmt.Errorf("failed to parse config file\n%s", err)
+			}
+		}
 	}
 
-	return nil
+	return config, nil
 }
