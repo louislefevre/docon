@@ -11,7 +11,7 @@ var runCmd = &cobra.Command{
 	Short: "Process dotfiles",
 	Long:  `Retrieves all dotfiles from the system and updates them in the repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+		fmt.Println()
 	},
 }
 
