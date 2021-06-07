@@ -19,61 +19,82 @@ var runCmd = &cobra.Command{
 	},
 }
 
-type Configuration map[string]ConfigGroup
+var RepoPath string
+
+type Configuration struct {
+	RepoPath string
+	ConfigMap ConfigMap
+}
+
+type ConfigMap map[string]ConfigGroup
 
 type ConfigGroup struct {
 	Path    string   `mapstructure:"path"`
-	Include []string `mapstructure:"include"`
-	Exclude []string `mapstructure:"exclude"`
+	Included []string `mapstructure:"include"`
+	Excluded []string `mapstructure:"exclude"`
 }
 
 func init() {
 	rootCmd.AddCommand(runCmd)
+	runCmd.Flags().StringVarP(&RepoPath, "repo", "r", "", "path to repository directory")
+	runCmd.MarkFlagRequired("repo")
 }
 
 func executeRun() {
 	config, err := initConfig()
 	cobra.CheckErr(err)
-	fmt.Println(config)
+	err = processConfiguration(config)
+	cobra.CheckErr(err)
 }
 
 func initConfig() (Configuration, error) {
+	var config Configuration
+
 	if home, err := homedir.Dir(); err == nil {
 		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
 	} else {
-		return nil, fmt.Errorf("failed to find home directory\n%s", err)
+		return config, fmt.Errorf("failed to find home directory\n%s", err)
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to load config file\n%s", err)
+		return config, fmt.Errorf("failed to load config file\n%s", err)
 	}
 
-	config := make(Configuration)
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, fmt.Errorf("failed to parse config file\n%s", err)
+	configMap := make(ConfigMap)
+	if err := viper.Unmarshal(&configMap); err != nil {
+		return config, fmt.Errorf("failed to parse config file\n%s", err)
 	}
 
-	for name, group := range config {
+	for name, group := range configMap {
 		if group.Path == "" {
-			return nil, fmt.Errorf("failed to parse config file\n%s: no defined path", name)
+			return config, fmt.Errorf("failed to parse config file\n%s: no defined path", name)
 		} else if _, err := os.Stat(group.Path); os.IsNotExist(err) {
-			return nil, fmt.Errorf("failed to parse config file\n%s", err)
+			return config, fmt.Errorf("failed to parse config file\n%s", err)
 		}
 
-		for _, file := range group.Include {
+		for i, file := range group.Included {
 			filePath := filepath.Join(group.Path, file)
 			if _, err := os.Stat(filePath); os.IsNotExist(err) {
-				return nil, fmt.Errorf("failed to parse config file\n%s", err)
+				return config, fmt.Errorf("failed to parse config file\n%s", err)
 			}
+			group.Included[i] = filePath
 		}
 
-		for _, file := range group.Exclude {
+		for i, file := range group.Excluded {
 			filePath := filepath.Join(group.Path, file)
 			if _, err := os.Stat(filePath); os.IsNotExist(err) {
-				return nil, fmt.Errorf("failed to parse config file\n%s", err)
+				return config, fmt.Errorf("failed to parse config file\n%s", err)
 			}
+			group.Excluded[i] = filePath
 		}
 	}
+
+	if _, err := os.Stat(RepoPath); os.IsNotExist(err) {
+		return config, fmt.Errorf("failed to find repo directory\n%s", err)
+	}
+
+	config.RepoPath = RepoPath
+	config.ConfigMap = configMap
 
 	return config, nil
 }
