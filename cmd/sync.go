@@ -10,37 +10,37 @@ import (
 	"github.com/spf13/viper"
 )
 
-var runCmd = &cobra.Command{
-	Use:   "run",
-	Short: "Process dotfiles",
+var syncCmd = &cobra.Command{
+	Use:   "sync",
+	Short: "Sync local dotfiles with repository",
 	Long:  `Retrieves all dotfiles from the system and updates them in the repository.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		executeRun()
+		executeSync()
 	},
 }
 
 var RepoPath string
 
 type Configuration struct {
-	RepoPath string
+	RepoPath  string
 	ConfigMap ConfigMap
 }
 
 type ConfigMap map[string]ConfigGroup
 
 type ConfigGroup struct {
-	Path    string   `mapstructure:"path"`
+	Path     string   `mapstructure:"path"`
 	Included []string `mapstructure:"include"`
 	Excluded []string `mapstructure:"exclude"`
 }
 
 func init() {
-	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringVarP(&RepoPath, "repo", "r", "", "path to repository directory")
-	runCmd.MarkFlagRequired("repo")
+	rootCmd.AddCommand(syncCmd)
+	syncCmd.Flags().StringVarP(&RepoPath, "repo", "r", "", "path to repository directory")
+	syncCmd.MarkFlagRequired("repo")
 }
 
-func executeRun() {
+func executeSync() {
 	config, err := initConfig()
 	cobra.CheckErr(err)
 	err = processConfiguration(config)
