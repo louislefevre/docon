@@ -43,7 +43,11 @@ func init() {
 func executeSync() {
 	config, err := initConfig()
 	cobra.CheckErr(err)
-	err = processConfiguration(config)
+
+	dotfiles, err := processConfiguration(config)
+	cobra.CheckErr(err)
+
+	err = syncFiles(dotfiles)
 	cobra.CheckErr(err)
 }
 
@@ -68,8 +72,10 @@ func initConfig() (Configuration, error) {
 	for name, group := range configMap {
 		if group.Path == "" {
 			return config, fmt.Errorf("failed to parse config file\n%s: no defined path", name)
-		} else if _, err := os.Stat(group.Path); os.IsNotExist(err) {
+		} else if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
 			return config, fmt.Errorf("failed to parse config file\n%s", err)
+		} else if !fileInfo.IsDir() {
+			return config, fmt.Errorf("failed to parse config file\n%s: is not a directory", group.Path)
 		}
 
 		for i, file := range group.Included {
