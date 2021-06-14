@@ -4,7 +4,7 @@ func ExecuteSync() {
 	config, err := initConfig()
 	checkErr(err)
 
-	dotfiles, err := processConfiguration(config)
+	dotfiles, err := parseConfiguration(config)
 	checkErr(err)
 
 	err = syncFiles(dotfiles)

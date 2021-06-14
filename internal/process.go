@@ -28,18 +28,32 @@ func (file dotfile) lineCountDiff() int {
 	return systemFileCount - repoFileCount
 }
 
-func processConfiguration(config configuration) ([]dotfile, error) {
+func parseConfiguration(config configuration) ([]dotfile, error) {
 	var dotfiles []dotfile
 	for groupName, group := range config.mapping {
-		var files []string
 
-		err := filepath.Walk(group.path, visit(&files, group.included, group.excluded))
+		for _, file := range group.Included {
+			err := filepath.Walk(file, visitCheck())
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		for _, file := range group.Excluded {
+			err := filepath.Walk(file, visitCheck())
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		var files []string
+		err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded))
 		if err != nil {
 			return nil, err
 		}
 
 		for _, filePath := range files {
-			fileName := strings.ReplaceAll(filePath, group.path, "")
+			fileName := strings.ReplaceAll(filePath, group.Path, "")
 			repoName := filepath.Join(groupName, fileName)
 			repoPath := filepath.Join(config.repoPath, repoName)
 
@@ -66,7 +80,43 @@ func processConfiguration(config configuration) ([]dotfile, error) {
 			})
 		}
 	}
+
 	return dotfiles, nil
+}
+
+func visitCheck() filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return err
+		}
+		return nil
+	}
+}
+
+func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		if containsString(excluded, path) {
+			if containsString(included, path) {
+				fmt.Printf("Warning: file '%s' is both excluded and included\n", path)
+			}
+			return nil
+		}
+
+		if len(included) != 0 && !containsString(included, path) {
+			return nil
+		}
+
+		*files = append(*files, path)
+		return nil
+	}
 }
 
 func syncFiles(dotfiles []dotfile) error {
