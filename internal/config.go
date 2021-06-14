@@ -11,21 +11,21 @@ import (
 
 var RepoPath string
 
-type Configuration struct {
-	RepoPath  string
-	ConfigMap ConfigMap
+type configuration struct {
+	repoPath string
+	mapping  configMap
 }
 
-type ConfigMap map[string]ConfigGroup
+type configMap map[string]configGroup
 
-type ConfigGroup struct {
-	Path     string   `mapstructure:"path"`
-	Included []string `mapstructure:"include"`
-	Excluded []string `mapstructure:"exclude"`
+type configGroup struct {
+	path     string   `mapstructure:"path"`
+	included []string `mapstructure:"include"`
+	excluded []string `mapstructure:"exclude"`
 }
 
-func initConfig() (Configuration, error) {
-	var config Configuration
+func initConfig() (configuration, error) {
+	var config configuration
 
 	if home, err := homedir.Dir(); err == nil {
 		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
@@ -37,34 +37,34 @@ func initConfig() (Configuration, error) {
 		return config, fmt.Errorf("failed to load config file\n%s", err)
 	}
 
-	configMap := make(ConfigMap)
-	if err := viper.Unmarshal(&configMap); err != nil {
+	mapping := make(configMap)
+	if err := viper.Unmarshal(&mapping); err != nil {
 		return config, fmt.Errorf("failed to parse config file\n%s", err)
 	}
 
-	for name, group := range configMap {
-		if group.Path == "" {
+	for name, group := range mapping {
+		if group.path == "" {
 			return config, fmt.Errorf("failed to parse config file\n%s: no defined path", name)
-		} else if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
+		} else if fileInfo, err := os.Stat(group.path); os.IsNotExist(err) {
 			return config, fmt.Errorf("failed to parse config file\n%s", err)
 		} else if !fileInfo.IsDir() {
-			return config, fmt.Errorf("failed to parse config file\n%s: is not a directory", group.Path)
+			return config, fmt.Errorf("failed to parse config file\n%s: is not a directory", group.path)
 		}
 
-		for i, file := range group.Included {
-			filePath := filepath.Join(group.Path, file)
+		for i, file := range group.included {
+			filePath := filepath.Join(group.path, file)
 			if _, err := os.Stat(filePath); os.IsNotExist(err) {
 				return config, fmt.Errorf("failed to parse config file\n%s", err)
 			}
-			group.Included[i] = filePath
+			group.included[i] = filePath
 		}
 
-		for i, file := range group.Excluded {
-			filePath := filepath.Join(group.Path, file)
+		for i, file := range group.excluded {
+			filePath := filepath.Join(group.path, file)
 			if _, err := os.Stat(filePath); os.IsNotExist(err) {
 				return config, fmt.Errorf("failed to parse config file\n%s", err)
 			}
-			group.Excluded[i] = filePath
+			group.excluded[i] = filePath
 		}
 	}
 
@@ -72,8 +72,8 @@ func initConfig() (Configuration, error) {
 		return config, fmt.Errorf("failed to find repo directory\n%s", err)
 	}
 
-	config.RepoPath = RepoPath
-	config.ConfigMap = configMap
+	config.repoPath = RepoPath
+	config.mapping = mapping
 
 	return config, nil
 }

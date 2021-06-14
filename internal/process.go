@@ -9,39 +9,39 @@ import (
 	"strings"
 )
 
-type Dotfile struct {
-	SystemFileName     string
-	SystemFilePath     string
-	SystemFileContents []byte
-	RepoFileName       string
-	RepoFilePath       string
-	RepoFileContents   []byte
+type dotfile struct {
+	systemFileName     string
+	systemFilePath     string
+	systemFileContents []byte
+	repoFileName       string
+	repoFilePath       string
+	repoFileContents   []byte
 }
 
-func (dotfile Dotfile) IsUpToDate() bool {
-	return bytes.Equal(dotfile.SystemFileContents, dotfile.RepoFileContents)
+func (file dotfile) isUpToDate() bool {
+	return bytes.Equal(file.systemFileContents, file.repoFileContents)
 }
 
-func (dotfile Dotfile) LineCountDiff() int {
-	systemFileCount := bytes.Count(dotfile.SystemFileContents, []byte{'\n'})
-	repoFileCount := bytes.Count(dotfile.RepoFileContents, []byte{'\n'})
+func (file dotfile) lineCountDiff() int {
+	systemFileCount := bytes.Count(file.systemFileContents, []byte{'\n'})
+	repoFileCount := bytes.Count(file.repoFileContents, []byte{'\n'})
 	return systemFileCount - repoFileCount
 }
 
-func processConfiguration(config Configuration) ([]Dotfile, error) {
-	var dotfiles []Dotfile
-	for groupName, group := range config.ConfigMap {
+func processConfiguration(config configuration) ([]dotfile, error) {
+	var dotfiles []dotfile
+	for groupName, group := range config.mapping {
 		var files []string
 
-		err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded))
+		err := filepath.Walk(group.path, visit(&files, group.included, group.excluded))
 		if err != nil {
 			return nil, err
 		}
 
 		for _, filePath := range files {
-			fileName := strings.ReplaceAll(filePath, group.Path, "")
+			fileName := strings.ReplaceAll(filePath, group.path, "")
 			repoName := filepath.Join(groupName, fileName)
-			repoPath := filepath.Join(config.RepoPath, repoName)
+			repoPath := filepath.Join(config.repoPath, repoName)
 
 			fileContents, err := ioutil.ReadFile(filePath)
 			if err != nil {
@@ -56,34 +56,33 @@ func processConfiguration(config Configuration) ([]Dotfile, error) {
 				}
 			}
 
-			dotfiles = append(dotfiles, Dotfile{
-				SystemFileName:     fileName,
-				SystemFilePath:     filePath,
-				RepoFileName:       repoName,
-				RepoFilePath:       repoPath,
-				SystemFileContents: fileContents,
-				RepoFileContents:   repoContents,
+			dotfiles = append(dotfiles, dotfile{
+				systemFileName:     fileName,
+				systemFilePath:     filePath,
+				repoFileName:       repoName,
+				repoFilePath:       repoPath,
+				systemFileContents: fileContents,
+				repoFileContents:   repoContents,
 			})
 		}
 	}
 	return dotfiles, nil
 }
 
-
-func syncFiles(dotfiles []Dotfile) error {
+func syncFiles(dotfiles []dotfile) error {
 	for _, file := range dotfiles {
-		if file.IsUpToDate() {
+		if file.isUpToDate() {
 			continue
 		}
-		fmt.Printf("Updating %s (%+d lines)\n", file.RepoFileName, file.LineCountDiff())
+		fmt.Printf("Updating %s (%+d lines)\n", file.repoFileName, file.lineCountDiff())
 
-		if _, err := os.Stat(file.RepoFilePath); os.IsNotExist(err) {
-			os.MkdirAll(filepath.Dir(file.RepoFilePath), os.ModePerm)
+		if _, err := os.Stat(file.repoFilePath); os.IsNotExist(err) {
+			os.MkdirAll(filepath.Dir(file.repoFilePath), os.ModePerm)
 		} else if err != nil {
 			return err
 		}
 
-		err := ioutil.WriteFile(file.RepoFilePath, file.SystemFileContents, 0644)
+		err := ioutil.WriteFile(file.repoFilePath, file.systemFileContents, 0644)
 		if err != nil {
 			return err
 		}
