@@ -13,5 +13,6 @@ var rootCmd = &cobra.Command{
 func init() {}
 
 func ExecuteRoot() {
-	cobra.CheckErr(rootCmd.Execute())
+	err := rootCmd.Execute()
+	cobra.CheckErr(err)
 }
