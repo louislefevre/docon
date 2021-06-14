@@ -30,7 +30,13 @@ func (file dotfile) lineCountDiff() int {
 
 func parseConfiguration(config configuration) ([]dotfile, error) {
 	var dotfiles []dotfile
+
 	for groupName, group := range config.mapping {
+		if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
+			return nil, err
+		} else if !fileInfo.IsDir() {
+			return nil, fmt.Errorf("%s is not a directory", group.Path)
+		}
 
 		for _, file := range group.Included {
 			err := filepath.Walk(file, visitCheck())
