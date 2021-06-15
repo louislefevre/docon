@@ -9,27 +9,31 @@ import (
 	"strings"
 )
 
+type dotfiles []dotfilePair
+
+type dotfilePair struct {
+	systemFile dotfile
+	targetFile dotfile
+}
+
 type dotfile struct {
-	systemFileName     string
-	systemFilePath     string
-	systemFileContents []byte
-	repoFileName       string
-	repoFilePath       string
-	repoFileContents   []byte
+	name     string
+	path     string
+	contents []byte
 }
 
-func (file dotfile) isUpToDate() bool {
-	return bytes.Equal(file.systemFileContents, file.repoFileContents)
+func (dp dotfilePair) isUpToDate() bool {
+	return bytes.Equal(dp.systemFile.contents, dp.targetFile.contents)
 }
 
-func (file dotfile) lineCountDiff() int {
-	systemFileCount := bytes.Count(file.systemFileContents, []byte{'\n'})
-	repoFileCount := bytes.Count(file.repoFileContents, []byte{'\n'})
+func (dp dotfilePair) lineCountDiff() int {
+	systemFileCount := bytes.Count(dp.systemFile.contents, []byte{'\n'})
+	repoFileCount := bytes.Count(dp.targetFile.contents, []byte{'\n'})
 	return systemFileCount - repoFileCount
 }
 
-func parseConfiguration(config configuration) ([]dotfile, error) {
-	var dotfiles []dotfile
+func parseConfiguration(config configuration) (dotfiles, error) {
+	var dotfiles dotfiles
 
 	for groupName, group := range config.mapping {
 		if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
@@ -58,31 +62,35 @@ func parseConfiguration(config configuration) ([]dotfile, error) {
 			return nil, err
 		}
 
-		for _, filePath := range files {
-			fileName := strings.ReplaceAll(filePath, group.Path, "")
-			repoName := filepath.Join(groupName, fileName)
-			repoPath := filepath.Join(config.repoPath, repoName)
+		for _, systemFilePath := range files {
+			systemFileName := strings.ReplaceAll(systemFilePath, group.Path, "")
+			targetFileName := filepath.Join(groupName, systemFileName)
+			targetFilePath := filepath.Join(config.repoPath, targetFileName)
 
-			fileContents, err := ioutil.ReadFile(filePath)
+			systemFileContents, err := ioutil.ReadFile(systemFilePath)
 			if err != nil {
 				return nil, err
 			}
 
-			var repoContents []byte
-			if _, err := os.Stat(repoPath); !os.IsNotExist(err) {
-				repoContents, err = ioutil.ReadFile(repoPath)
+			var repoFileContents []byte
+			if _, err := os.Stat(targetFilePath); !os.IsNotExist(err) {
+				repoFileContents, err = ioutil.ReadFile(targetFilePath)
 				if err != nil {
 					return nil, err
 				}
 			}
 
-			dotfiles = append(dotfiles, dotfile{
-				systemFileName:     fileName,
-				systemFilePath:     filePath,
-				repoFileName:       repoName,
-				repoFilePath:       repoPath,
-				systemFileContents: fileContents,
-				repoFileContents:   repoContents,
+			dotfiles = append(dotfiles, dotfilePair{
+				systemFile: dotfile{
+					name:     systemFileName,
+					path:     systemFilePath,
+					contents: systemFileContents,
+				},
+				targetFile: dotfile{
+					name:     targetFileName,
+					path:     targetFilePath,
+					contents: repoFileContents,
+				},
 			})
 		}
 	}
