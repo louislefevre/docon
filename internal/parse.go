@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
 type dotfiles []dotfilePair
@@ -22,6 +24,17 @@ type dotfile struct {
 	contents []byte
 }
 
+func (dfs dotfiles) get(path string) (dotfilePair, bool) {
+	for _, d := range dfs {
+		if d.systemFile.path == path {
+			return d, true
+		} else if d.targetFile.path == path {
+			return d, true
+		}
+	}
+	return dotfilePair{}, false
+}
+
 func (dp dotfilePair) isUpToDate() bool {
 	return bytes.Equal(dp.systemFile.contents, dp.targetFile.contents)
 }
@@ -30,6 +43,12 @@ func (dp dotfilePair) lineCountDiff() int {
 	systemFileCount := bytes.Count(dp.systemFile.contents, []byte{'\n'})
 	repoFileCount := bytes.Count(dp.targetFile.contents, []byte{'\n'})
 	return systemFileCount - repoFileCount
+}
+
+func (dp dotfilePair) diff() string {
+	dmp := diffmatchpatch.New()
+	diffs := dmp.DiffMain(string(dp.systemFile.contents), string(dp.targetFile.contents), false)
+	return dmp.DiffPrettyText(diffs)
 }
 
 func parseConfiguration(config configuration) (dotfiles, error) {
@@ -72,9 +91,9 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 				return nil, err
 			}
 
-			var repoFileContents []byte
+			var targetFileContents []byte
 			if _, err := os.Stat(targetFilePath); !os.IsNotExist(err) {
-				repoFileContents, err = ioutil.ReadFile(targetFilePath)
+				targetFileContents, err = ioutil.ReadFile(targetFilePath)
 				if err != nil {
 					return nil, err
 				}
@@ -89,7 +108,7 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 				targetFile: dotfile{
 					name:     targetFileName,
 					path:     targetFilePath,
-					contents: repoFileContents,
+					contents: targetFileContents,
 				},
 			})
 		}
