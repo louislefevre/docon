@@ -11,57 +11,58 @@ import (
 var RepoPath string
 
 type configuration struct {
-	repoPath string
-	mapping  configMap
-}
-
-type configMap map[string]configGroup
-
-type configGroup struct {
-	Path     string   `mapstructure:"path"`
-	Included []string `mapstructure:"include"`
-	Excluded []string `mapstructure:"exclude"`
+	TargetPath  string `mapstructure:"target"`
+	PkglistPath string `mapstructure:"pkglist"`
+	Sources     map[string]struct {
+		Path      string   `mapstructure:"path"`
+		CommitMsg string   `mapstructure:"msg"`
+		Included  []string `mapstructure:"include"`
+		Excluded  []string `mapstructure:"exclude"`
+	} `mapstructure:"sources"`
 }
 
 func initConfig() (configuration, error) {
 	var config configuration
 
-	mapping, err := loadConfig()
-	if err != nil {
+	if err := loadConfig(&config); err != nil {
 		return config, err
 	}
 
-	config.repoPath = RepoPath
-	config.mapping = mapping
+	if err := parseConfig(&config); err != nil {
+		return config, err
+	}
 
 	return config, nil
 }
 
-func loadConfig() (configMap, error) {
+func loadConfig(config *configuration) error {
 	if home, err := homedir.Dir(); err == nil {
 		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
 	} else {
-		return nil, newError(err, "Failed to find home directory")
+		return newError(err, "Failed to find home directory")
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, newError(err, "Failed to read config file")
+		return newError(err, "Failed to read config file")
 	}
 
-	mapping := make(configMap)
-	if err := viper.Unmarshal(&mapping); err != nil {
-		return nil, newError(err, "Failed to unmarshal config file")
+	if err := viper.Unmarshal(&config); err != nil {
+		return newError(err, "Failed to unmarshal config file")
 	}
 
-	if err := parseConfig(mapping); err != nil {
-		return nil, newError(err, "Failed to parse config file")
-	}
-
-	return mapping, nil
+	return nil
 }
 
-func parseConfig(mapping configMap) error {
-	for name, group := range mapping {
+func parseConfig(config *configuration) error {
+	if config.TargetPath == "" {
+		return newError(nil, "Target path has not been set")
+	}
+
+	if config.PkglistPath == "" {
+		config.PkglistPath = config.TargetPath
+	}
+
+	for name, group := range config.Sources {
 		if group.Path == "" {
 			return newError(nil, fmt.Sprintf("%s has no defined path", name))
 		}

@@ -54,7 +54,7 @@ func (dp dotfilePair) diff() string {
 func parseConfiguration(config configuration) (dotfiles, error) {
 	var dotfiles dotfiles
 
-	for groupName, group := range config.mapping {
+	for groupName, group := range config.Sources {
 		if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
 			return nil, newError(err, fmt.Sprintf("%s does not exist", group.Path))
 		} else if !fileInfo.IsDir() {
@@ -84,7 +84,7 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 		for _, systemFilePath := range files {
 			systemFileName := strings.ReplaceAll(systemFilePath, group.Path, "")
 			targetFileName := filepath.Join(groupName, systemFileName)
-			targetFilePath := filepath.Join(config.repoPath, targetFileName)
+			targetFilePath := filepath.Join(config.TargetPath, targetFileName)
 
 			systemFileContents, err := ioutil.ReadFile(systemFilePath)
 			if err != nil {
