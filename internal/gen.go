@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -31,7 +30,7 @@ import (
 func genPackageList(dotfiles dotfiles) error {
 	path, err := os.Getwd()
 	if err != nil {
-		return err
+		return newError(err, "Failed to determine current working directory")
 	}
 
 	path = filepath.Join(path, "pkglist.txt")
@@ -39,26 +38,26 @@ func genPackageList(dotfiles dotfiles) error {
 	if _, err := os.Stat(path); err == nil {
 		targetContents, err = ioutil.ReadFile(path)
 		if err != nil {
-			return err
+			return newError(err, "Failed to read package list")
 		}
 	}
 
 	cmd := exec.Command("uname", "-n")
 	distro, err := cmd.Output()
 	if err != nil {
-		return err
+		return newError(err, "Failed to determine operating system")
 	}
 
 	switch strings.Trim(string(distro), "\n") {
 	case "arch":
 		cmd = exec.Command("pacman", "-Q")
 	default:
-		return errors.New("unknown operating system")
+		return newError(nil, "Unknown operating system")
 	}
 
 	systemContents, err := cmd.Output()
 	if err != nil {
-		return err
+		return newError(err, "Failed to determine installed packages")
 	}
 
 	targetSlice := strings.Split(string(targetContents), "\n")
@@ -87,7 +86,7 @@ func genPackageList(dotfiles dotfiles) error {
 
 	err = ioutil.WriteFile(path, systemContents, 0644)
 	if err != nil {
-		return err
+		return newError(err, "Failed to write to package list")
 	}
 
 	return nil

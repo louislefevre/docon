@@ -56,29 +56,29 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 
 	for groupName, group := range config.mapping {
 		if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
-			return nil, err
+			return nil, newError(err, fmt.Sprintf("%s does not exist", group.Path))
 		} else if !fileInfo.IsDir() {
-			return nil, fmt.Errorf("%s is not a directory", group.Path)
+			return nil, newError(err, fmt.Sprintf("%s is not a directory", group.Path))
 		}
 
 		for _, file := range group.Included {
 			err := filepath.Walk(file, visitCheck())
 			if err != nil {
-				return nil, err
+				return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", file))
 			}
 		}
 
 		for _, file := range group.Excluded {
 			err := filepath.Walk(file, visitCheck())
 			if err != nil {
-				return nil, err
+				return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", file))
 			}
 		}
 
 		var files []string
 		err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded))
 		if err != nil {
-			return nil, err
+			return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
 		}
 
 		for _, systemFilePath := range files {
@@ -88,14 +88,14 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 
 			systemFileContents, err := ioutil.ReadFile(systemFilePath)
 			if err != nil {
-				return nil, err
+				return nil, newError(err, fmt.Sprintf("Failed to read file %s", systemFilePath))
 			}
 
 			var targetFileContents []byte
-			if _, err := os.Stat(targetFilePath); !os.IsNotExist(err) {
+			if _, err := os.Stat(targetFilePath); err == nil {
 				targetFileContents, err = ioutil.ReadFile(targetFilePath)
 				if err != nil {
-					return nil, err
+					return nil, newError(err, fmt.Sprintf("Failed to read file %s", systemFilePath))
 				}
 			}
 
@@ -138,7 +138,8 @@ func visit(files *[]string, included []string, excluded []string) filepath.WalkF
 
 		if containsString(excluded, path) {
 			if containsString(included, path) {
-				fmt.Printf("Warning: file '%s' is both excluded and included\n", path)
+				warning := newWarning(fmt.Sprintf("file '%s' is both excluded and included", path))
+				fmt.Println(warning)
 			}
 			return nil
 		}

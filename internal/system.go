@@ -17,12 +17,12 @@ func syncFiles(dotfiles dotfiles) error {
 		if _, err := os.Stat(pair.targetFile.path); os.IsNotExist(err) {
 			os.MkdirAll(filepath.Dir(pair.targetFile.path), os.ModePerm)
 		} else if err != nil {
-			return err
+			return newError(err, fmt.Sprintf("Failed to retrieve %s", pair.targetFile.path))
 		}
 
 		err := ioutil.WriteFile(pair.targetFile.path, pair.systemFile.contents, 0644)
 		if err != nil {
-			return err
+			return newError(err, fmt.Sprintf("Failed to write to %s", pair.targetFile.path))
 		}
 	}
 	return nil

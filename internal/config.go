@@ -41,20 +41,20 @@ func loadConfig() (configMap, error) {
 	if home, err := homedir.Dir(); err == nil {
 		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
 	} else {
-		return nil, fmt.Errorf("failed to find home directory\n%s", err)
+		return nil, newError(err, "Failed to find home directory")
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to load config file\n%s", err)
+		return nil, newError(err, "Failed to read config file")
 	}
 
 	mapping := make(configMap)
 	if err := viper.Unmarshal(&mapping); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config file\n%s", err)
+		return nil, newError(err, "Failed to unmarshal config file")
 	}
 
 	if err := parseConfig(mapping); err != nil {
-		return nil, fmt.Errorf("failed to parse config file\n%s", err)
+		return nil, newError(err, "Failed to parse config file")
 	}
 
 	return mapping, nil
@@ -63,7 +63,7 @@ func loadConfig() (configMap, error) {
 func parseConfig(mapping configMap) error {
 	for name, group := range mapping {
 		if group.Path == "" {
-			return fmt.Errorf("%s has no defined path", name)
+			return newError(nil, fmt.Sprintf("%s has no defined path", name))
 		}
 
 		for i, file := range group.Included {
