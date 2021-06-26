@@ -16,6 +16,4 @@ var pkgCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(pkgCmd)
-	pkgCmd.Flags().StringVarP(&internal.RepoPath, "repo", "r", "", "path to repository directory")
-	pkgCmd.MarkFlagRequired("repo")
 }

@@ -16,6 +16,4 @@ var syncCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(syncCmd)
-	syncCmd.Flags().StringVarP(&internal.RepoPath, "repo", "r", "", "path to repository directory")
-	syncCmd.MarkFlagRequired("repo")
 }

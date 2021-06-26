@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var RepoPath string
-
 type configuration struct {
 	TargetPath  string `mapstructure:"target"`
 	PkglistPath string `mapstructure:"pkglist"`

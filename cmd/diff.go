@@ -16,6 +16,4 @@ var diffCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(diffCmd)
-	diffCmd.Flags().StringVarP(&internal.RepoPath, "repo", "r", "", "path to repository directory")
-	diffCmd.MarkFlagRequired("repo")
 }
