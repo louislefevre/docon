@@ -1,5 +1,7 @@
 package internal
 
+import "fmt"
+
 func ExecuteConfig() dotfiles {
 	config, err := initConfig()
 	checkErr(err)
@@ -25,4 +27,14 @@ func ExecutePkg() {
 	dotfiles := ExecuteConfig()
 	err := genPackageList(dotfiles)
 	checkErr(err)
+}
+
+func ExecuteVerify() {
+	_, err := initConfig()
+	if err != nil {
+		fmt.Println("Config file syntax is invalid.")
+		checkErr(err)
+	} else {
+		fmt.Println("Config file syntax is valid.")
+	}
 }
