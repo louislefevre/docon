@@ -20,3 +20,9 @@ func ExecuteDiff(filePaths []string) {
 	dotfiles := ExecuteConfig()
 	showDiffs(dotfiles, filePaths)
 }
+
+func ExecutePkg() {
+	dotfiles := ExecuteConfig()
+	err := genPackageList(dotfiles)
+	checkErr(err)
+}

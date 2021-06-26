@@ -14,6 +14,16 @@ func containsString(s []string, str string) bool {
 	return false
 }
 
+func difference(slice1 []string, slice2 []string) []string {
+	var diff []string
+	for _, item := range slice1 {
+		if !containsString(slice2, item) {
+			diff = append(diff, item)
+		}
+	}
+	return diff
+}
+
 func checkErr(msg interface{}) {
 	if msg != nil {
 		fmt.Fprintln(os.Stderr, "Error:", msg)
