@@ -20,7 +20,7 @@ func syncFiles(dotfiles dotfiles) error {
 			return newError(err, fmt.Sprintf("Failed to retrieve %s", pair.targetFile.path))
 		}
 
-		err := ioutil.WriteFile(pair.targetFile.path, pair.systemFile.contents, 0644)
+		err := ioutil.WriteFile(pair.targetFile.path, pair.sourceFile.contents, 0644)
 		if err != nil {
 			return newError(err, fmt.Sprintf("Failed to write to %s", pair.targetFile.path))
 		}

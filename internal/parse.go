@@ -18,29 +18,30 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 			return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
 		}
 
-		for _, systemFilePath := range files {
-			systemFileName := strings.ReplaceAll(systemFilePath, group.Path, "")
-			targetFileName := filepath.Join(groupName, systemFileName)
+		for _, path := range files {
+			sourceFileName := strings.ReplaceAll(path, group.Path, "")
+			sourceFilePath := path
+			targetFileName := filepath.Join(groupName, sourceFileName)
 			targetFilePath := filepath.Join(config.TargetPath, targetFileName)
 
-			systemFileContents, err := ioutil.ReadFile(systemFilePath)
+			sourceFileContents, err := ioutil.ReadFile(sourceFilePath)
 			if err != nil {
-				return nil, newError(err, fmt.Sprintf("Failed to read file %s", systemFilePath))
+				return nil, newError(err, fmt.Sprintf("Failed to read file %s", sourceFilePath))
 			}
 
 			var targetFileContents []byte
-			if _, err := os.Stat(targetFilePath); err == nil {
+			if err := checkFile(targetFilePath); err == nil {
 				targetFileContents, err = ioutil.ReadFile(targetFilePath)
 				if err != nil {
-					return nil, newError(err, fmt.Sprintf("Failed to read file %s", systemFilePath))
+					return nil, newError(err, fmt.Sprintf("Failed to read file %s", targetFilePath))
 				}
 			}
 
 			dotfiles = append(dotfiles, dotfilePair{
-				systemFile: dotfile{
-					name:     systemFileName,
-					path:     systemFilePath,
-					contents: systemFileContents,
+				sourceFile: dotfile{
+					name:     sourceFileName,
+					path:     sourceFilePath,
+					contents: sourceFileContents,
 				},
 				targetFile: dotfile{
 					name:     targetFileName,
