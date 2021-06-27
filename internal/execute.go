@@ -26,7 +26,7 @@ func ExecuteDiff(filePaths []string) {
 func ExecutePkg() {
 	config, err := initConfig()
 	checkErr(err)
-	
+
 	err = genPackageList(config)
 	checkErr(err)
 }
@@ -39,4 +39,15 @@ func ExecuteVerify() {
 	} else {
 		fmt.Println("Config file syntax is valid.")
 	}
+}
+
+func ExecuteCommit() {
+	config, err := initConfig()
+	checkErr(err)
+
+	dotfiles, err := parseConfiguration(config)
+	checkErr(err)
+
+	err = commitAll(config, dotfiles)
+	checkErr(err)
 }

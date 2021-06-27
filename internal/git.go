@@ -1,0 +1,68 @@
+package internal
+
+import (
+	"time"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/tcnksm/go-gitconfig"
+)
+
+func commitAll(config configuration, dfs dotfiles) error {
+	for _, df := range dfs {
+		err := commit(config.TargetPath, df.targetFile.name, df.commitMsg)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func commit(dir string, file string, msg string) error {
+	repo, err := git.PlainOpen(dir)
+	if err != nil {
+		return err
+	}
+
+	tree, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	_, err = tree.Add(file)
+	if err != nil {
+		return err
+	}
+
+	author, err := getAuthorSignature()
+	if err != nil {
+		return err
+	}
+
+	_, err = tree.Commit(msg, &git.CommitOptions{Author: author})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getAuthorSignature() (*object.Signature, error) {
+	author := &object.Signature{}
+
+	if username, err := gitconfig.Username(); err == nil {
+		author.Name = username
+	} else {
+		return author, err
+	}
+
+	if email, err := gitconfig.Email(); err == nil {
+		author.Email = email
+	} else {
+		return author, err
+	}
+
+	author.When = time.Now()
+
+	return author, nil
+}
