@@ -30,6 +30,10 @@ func initConfig() (configuration, error) {
 		return config, err
 	}
 
+	if err := verifyConfig(&config); err != nil {
+		return config, err
+	}
+
 	return config, nil
 }
 
@@ -71,6 +75,32 @@ func parseConfig(config *configuration) error {
 
 		for i, file := range group.Excluded {
 			group.Excluded[i] = filepath.Join(group.Path, file)
+		}
+	}
+
+	return nil
+}
+
+func verifyConfig(config *configuration) error {
+	if err := checkDir(config.TargetPath); err != nil {
+		return newError(err, "Failed to verify target path")
+	}
+
+	if err := checkDir(config.PkglistPath); err != nil {
+		return newError(err, "Failed to verify package list path")
+	}
+
+	for name, group := range config.Sources {
+		if err := checkDir(group.Path); err != nil {
+			return newError(err, fmt.Sprintf("Failed to verify path for %s", name))
+		}
+
+		if err := checkPaths(group.Included, nil); err != nil {
+			return newError(err, fmt.Sprintf("Failed to verify included path for %s", name))
+		}
+
+		if err := checkPaths(group.Excluded, nil); err != nil {
+			return newError(err, fmt.Sprintf("Failed to verify excluded path for %s", name))
 		}
 	}
 

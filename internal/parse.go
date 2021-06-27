@@ -12,29 +12,9 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 	var dotfiles dotfiles
 
 	for groupName, group := range config.Sources {
-		if fileInfo, err := os.Stat(group.Path); os.IsNotExist(err) {
-			return nil, newError(err, fmt.Sprintf("%s does not exist", group.Path))
-		} else if !fileInfo.IsDir() {
-			return nil, newError(err, fmt.Sprintf("%s is not a directory", group.Path))
-		}
-
-		for _, file := range group.Included {
-			err := filepath.Walk(file, visitCheck())
-			if err != nil {
-				return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", file))
-			}
-		}
-
-		for _, file := range group.Excluded {
-			err := filepath.Walk(file, visitCheck())
-			if err != nil {
-				return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", file))
-			}
-		}
-
 		var files []string
-		err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded))
-		if err != nil {
+
+		if err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded)); err != nil {
 			return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
 		}
 
@@ -74,18 +54,9 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 	return dotfiles, nil
 }
 
-func visitCheck() filepath.WalkFunc {
-	return func(path string, info os.FileInfo, err error) error {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			return err
-		}
-		return nil
-	}
-}
-
 func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := checkPath(path, nil); err != nil {
 			return err
 		}
 

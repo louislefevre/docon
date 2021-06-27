@@ -116,3 +116,7 @@ Developers log for todos and plans.
 - Flag for quiet mode where no output is printed (just an updated/up-to-date print).
 - Includes shell commands for other distros.
 - Flag which user can use for passing their own package generation command. This can also be customised in config.yaml.
+- Config file option for change package list file name
+  - Checks package list path to see if it's directory or file.
+  - If directory, uses default name.
+  - If file, uses file name.

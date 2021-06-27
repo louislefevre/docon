@@ -3,7 +3,9 @@ package internal
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/fatih/color"
 )
@@ -57,4 +59,44 @@ func newWarning(msg string) string {
 
 	warnMsg := fmt.Sprintf("WARNING: %s", msg)
 	return color.YellowString(warnMsg)
+}
+
+func checkPath(path string, check func(fs.FileInfo) bool) error {
+	if fileInfo, err := os.Stat(path); err == nil {
+		if check != nil && !check(fileInfo) {
+			return fmt.Errorf("%s is an invalid path", path)
+		}
+		return nil
+	} else if os.IsNotExist(err) {
+		return err
+	} else {
+		return err
+	}
+}
+
+func checkFile(path string) error {
+	return checkPath(path, func(info fs.FileInfo) bool {
+		return info.Mode().IsRegular()
+	})
+}
+
+func checkDir(path string) error {
+	return checkPath(path, func(info fs.FileInfo) bool {
+		return info.Mode().IsDir()
+	})
+}
+
+func checkPaths(files []string, check func(fs.FileInfo) bool) error {
+	fn := func(path string, _ os.FileInfo, _ error) error {
+		err := checkPath(path, check)
+		return err
+	}
+
+	for _, file := range files {
+		if err := filepath.Walk(file, fn); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
