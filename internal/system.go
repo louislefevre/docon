@@ -7,39 +7,39 @@ import (
 	"path/filepath"
 )
 
-func syncFiles(dotfiles dotfiles) error {
-	for _, pair := range dotfiles {
-		if pair.isUpToDate() {
+func syncFiles(dfs dotfiles) error {
+	for _, df := range dfs {
+		if df.isUpToDate() {
 			continue
 		}
-		fmt.Printf("Updating %s (%+d lines)\n", pair.targetFile.name, pair.lineCountDiff())
+		fmt.Printf("Updating %s (%+d lines)\n", df.targetFile.name, df.lineCountDiff())
 
-		if _, err := os.Stat(pair.targetFile.path); os.IsNotExist(err) {
-			os.MkdirAll(filepath.Dir(pair.targetFile.path), os.ModePerm)
+		if _, err := os.Stat(df.targetFile.path); os.IsNotExist(err) {
+			os.MkdirAll(filepath.Dir(df.targetFile.path), os.ModePerm)
 		} else if err != nil {
-			return newError(err, fmt.Sprintf("Failed to retrieve %s", pair.targetFile.path))
+			return newError(err, fmt.Sprintf("Failed to retrieve %s", df.targetFile.path))
 		}
 
-		err := ioutil.WriteFile(pair.targetFile.path, pair.sourceFile.contents, 0644)
+		err := ioutil.WriteFile(df.targetFile.path, df.sourceFile.contents, 0644)
 		if err != nil {
-			return newError(err, fmt.Sprintf("Failed to write to %s", pair.targetFile.path))
+			return newError(err, fmt.Sprintf("Failed to write to %s", df.targetFile.path))
 		}
 	}
 	return nil
 }
 
-func showDiffs(dotfiles dotfiles, filePaths []string) {
-	if len(filePaths) != 0 {
-		for _, path := range filePaths {
-			if pair, ok := dotfiles.get(path); ok {
-				fmt.Println(pair.diff())
+func showDiffs(dfs dotfiles, paths []string) {
+	if len(paths) != 0 {
+		for _, path := range paths {
+			if df, ok := dfs.get(path); ok {
+				fmt.Println(df.diff())
 			} else {
 				fmt.Printf("Could not show diff for %s: file is not being tracked\n", path)
 			}
 		}
 	} else {
-		for _, pair := range dotfiles {
-			fmt.Println(pair.diff())
+		for _, df := range dfs {
+			fmt.Println(df.diff())
 		}
 	}
 }

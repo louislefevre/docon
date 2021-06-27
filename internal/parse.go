@@ -9,9 +9,9 @@ import (
 )
 
 func parseConfiguration(config configuration) (dotfiles, error) {
-	var dotfiles dotfiles
+	var dfs dotfiles
 
-	for groupName, group := range config.Sources {
+	for name, group := range config.Sources {
 		var files []string
 
 		if err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded)); err != nil {
@@ -21,7 +21,7 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 		for _, path := range files {
 			sourceFileName := strings.ReplaceAll(path, group.Path, "")
 			sourceFilePath := path
-			targetFileName := filepath.Join(groupName, sourceFileName)
+			targetFileName := filepath.Join(name, sourceFileName)
 			targetFilePath := filepath.Join(config.TargetPath, targetFileName)
 
 			sourceFileContents, err := ioutil.ReadFile(sourceFilePath)
@@ -37,13 +37,14 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 				}
 			}
 
-			dotfiles = append(dotfiles, dotfilePair{
-				sourceFile: dotfile{
+			dfs = append(dfs, dotfile{
+				commitMsg: group.CommitMsg,
+				sourceFile: file{
 					name:     sourceFileName,
 					path:     sourceFilePath,
 					contents: sourceFileContents,
 				},
-				targetFile: dotfile{
+				targetFile: file{
 					name:     targetFileName,
 					path:     targetFilePath,
 					contents: targetFileContents,
@@ -52,7 +53,7 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 		}
 	}
 
-	return dotfiles, nil
+	return dfs, nil
 }
 
 func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {

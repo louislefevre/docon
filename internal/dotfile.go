@@ -6,20 +6,21 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
-type dotfiles []dotfilePair
-
-type dotfilePair struct {
-	sourceFile dotfile
-	targetFile dotfile
-}
+type dotfiles []dotfile
 
 type dotfile struct {
+	commitMsg  string
+	sourceFile file
+	targetFile file
+}
+
+type file struct {
 	name     string
 	path     string
 	contents []byte
 }
 
-func (dfs dotfiles) get(path string) (dotfilePair, bool) {
+func (dfs dotfiles) get(path string) (dotfile, bool) {
 	for _, d := range dfs {
 		if d.sourceFile.path == path {
 			return d, true
@@ -27,21 +28,21 @@ func (dfs dotfiles) get(path string) (dotfilePair, bool) {
 			return d, true
 		}
 	}
-	return dotfilePair{}, false
+	return dotfile{}, false
 }
 
-func (dp dotfilePair) isUpToDate() bool {
-	return bytes.Equal(dp.sourceFile.contents, dp.targetFile.contents)
+func (df dotfile) isUpToDate() bool {
+	return bytes.Equal(df.sourceFile.contents, df.targetFile.contents)
 }
 
-func (dp dotfilePair) lineCountDiff() int {
-	sourceFileCount := bytes.Count(dp.sourceFile.contents, []byte{'\n'})
-	targetFileCount := bytes.Count(dp.targetFile.contents, []byte{'\n'})
+func (df dotfile) lineCountDiff() int {
+	sourceFileCount := bytes.Count(df.sourceFile.contents, []byte{'\n'})
+	targetFileCount := bytes.Count(df.targetFile.contents, []byte{'\n'})
 	return sourceFileCount - targetFileCount
 }
 
-func (dp dotfilePair) diff() string {
+func (df dotfile) diff() string {
 	dmp := diffmatchpatch.New()
-	diffs := dmp.DiffMain(string(dp.sourceFile.contents), string(dp.targetFile.contents), false)
+	diffs := dmp.DiffMain(string(df.sourceFile.contents), string(df.targetFile.contents), false)
 	return dmp.DiffPrettyText(diffs)
 }
