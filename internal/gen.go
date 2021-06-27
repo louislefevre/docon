@@ -9,24 +9,6 @@ import (
 	"strings"
 )
 
-// Get old package lists if exists.
-// - Define file path.
-// - Check if exists in repo.
-// - Get old package list if so.
-
-// Get new package list from pacman command.
-// - Check user distro.
-// - If not arch, return error message.
-// - If arch, run pacman -Qe command.
-// - Allow user to pass their own command? Without distro check.
-
-// Check if lists are the same.
-// - If same, do nothing and report it.
-// - If different, print newly added packages.
-// - Overwrite old package list with new package list.
-// - Print new package count, with newly added count in brackets.
-// - E.g. 500 packages (+5 new packages).
-
 func genPackageList(dotfiles dotfiles) error {
 	path, err := os.Getwd()
 	if err != nil {
@@ -65,6 +47,7 @@ func genPackageList(dotfiles dotfiles) error {
 	added := difference(systemSlice, targetSlice)
 	removed := difference(targetSlice, systemSlice)
 
+	defer fmt.Printf("%d Packages\n", len(systemSlice))
 	if len(added) == 0 && len(removed) == 0 {
 		fmt.Println("Package list is up to date")
 		return nil
