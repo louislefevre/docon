@@ -24,8 +24,10 @@ func ExecuteDiff(filePaths []string) {
 }
 
 func ExecutePkg() {
-	dotfiles := ExecuteConfig()
-	err := genPackageList(dotfiles)
+	config, err := initConfig()
+	checkErr(err)
+	
+	err = genPackageList(config)
 	checkErr(err)
 }
 
