@@ -11,30 +11,44 @@ import (
 type configuration struct {
 	TargetPath  string `mapstructure:"target"`
 	PkglistPath string `mapstructure:"pkglist"`
-	Sources     map[string]struct {
+	Git         struct {
+		Dir       bool   `mapstructure:"dir"`
+		CommitMsg string `mapstructure:"msg"`
+		Author    struct {
+			name  string `mapstructure:"name"`
+			email string `mapstructure:"email"`
+		}
+	} `mapstructure:"git"`
+	Sources map[string]struct {
 		Path      string   `mapstructure:"path"`
 		CommitMsg string   `mapstructure:"msg"`
 		Included  []string `mapstructure:"include"`
 		Excluded  []string `mapstructure:"exclude"`
+		dotfiles  dotfiles
 	} `mapstructure:"sources"`
+	allDotfiles dotfiles
 }
 
-func initConfig() (configuration, error) {
+func initConfig() (*configuration, error) {
 	var config configuration
 
 	if err := loadConfig(&config); err != nil {
-		return config, err
+		return &config, err
 	}
 
 	if err := parseConfig(&config); err != nil {
-		return config, err
+		return &config, err
 	}
 
 	if err := verifyConfig(&config); err != nil {
-		return config, err
+		return &config, err
 	}
 
-	return config, nil
+	if err := gatherDotfiles(&config); err != nil {
+		return &config, err
+	}
+
+	return &config, nil
 }
 
 func loadConfig(config *configuration) error {

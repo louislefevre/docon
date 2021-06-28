@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -8,11 +9,27 @@ import (
 	"github.com/tcnksm/go-gitconfig"
 )
 
-func commitAll(config configuration, dfs dotfiles) error {
-	for _, df := range dfs {
-		err := commit(config.TargetPath, df.targetFile.name, df.commitMsg)
-		if err != nil {
-			return err
+// TODO: Add config file field for adding either entire directory (only if >1 file) or individual files.
+// TODO: Add author section to config file and check if empty before running this.
+// TODO: Add check for empty commit message: if empty, use default. Maybe "{empty}" keyword in config if
+//       user wants to keep it truly empty?
+// TODO: Add check to see whether file is being added, updated, or removed.
+
+func commitAll(config *configuration) error {
+	for _, group := range config.Sources {
+		for _, df := range group.dotfiles {
+			var err error
+			if group.CommitMsg != "" {
+				err = commit(config.TargetPath, df.targetFile.name, group.CommitMsg)
+			} else if config.Git.CommitMsg != "" {
+				err = commit(config.TargetPath, df.targetFile.name, config.Git.CommitMsg)
+			} else {
+				msg := fmt.Sprintf("Update %s", df.targetFile.name)
+				err = commit(config.TargetPath, df.targetFile.name, msg)
+			}
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

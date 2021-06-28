@@ -67,8 +67,6 @@ func checkPath(path string, check func(fs.FileInfo) bool) error {
 			return fmt.Errorf("%s is an invalid path", path)
 		}
 		return nil
-	} else if os.IsNotExist(err) {
-		return err
 	} else {
 		return err
 	}

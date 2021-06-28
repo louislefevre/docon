@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func genPackageList(config configuration) error {
+func genPackageList(config *configuration) error {
 	path := filepath.Join(config.PkglistPath, "pkglist.txt")
 
 	var targetPackages []byte

@@ -2,25 +2,19 @@ package internal
 
 import "fmt"
 
-func ExecuteConfig() dotfiles {
+func ExecuteSync() {
 	config, err := initConfig()
 	checkErr(err)
 
-	dotfiles, err := parseConfiguration(config)
-	checkErr(err)
-
-	return dotfiles
-}
-
-func ExecuteSync() {
-	dotfiles := ExecuteConfig()
-	err := syncFiles(dotfiles)
+	err = syncFiles(config)
 	checkErr(err)
 }
 
 func ExecuteDiff(filePaths []string) {
-	dotfiles := ExecuteConfig()
-	showDiffs(dotfiles, filePaths)
+	config, err := initConfig()
+	checkErr(err)
+
+	showDiffs(config, filePaths)
 }
 
 func ExecutePkg() {
@@ -45,9 +39,6 @@ func ExecuteCommit() {
 	config, err := initConfig()
 	checkErr(err)
 
-	dotfiles, err := parseConfiguration(config)
-	checkErr(err)
-
-	err = commitAll(config, dotfiles)
+	err = commitAll(config)
 	checkErr(err)
 }

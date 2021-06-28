@@ -7,7 +7,9 @@ import (
 	"path/filepath"
 )
 
-func syncFiles(dfs dotfiles) error {
+func syncFiles(config *configuration) error {
+	dfs := config.allDotfiles
+
 	for _, df := range dfs {
 		if df.isUpToDate() {
 			continue
@@ -28,7 +30,9 @@ func syncFiles(dfs dotfiles) error {
 	return nil
 }
 
-func showDiffs(dfs dotfiles, paths []string) {
+func showDiffs(config *configuration, paths []string) {
+	dfs := config.allDotfiles
+
 	if len(paths) != 0 {
 		for _, path := range paths {
 			if df, ok := dfs.get(path); ok {

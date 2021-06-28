@@ -8,14 +8,13 @@ import (
 	"strings"
 )
 
-func parseConfiguration(config configuration) (dotfiles, error) {
-	var dfs dotfiles
-
+func gatherDotfiles(config *configuration) error {
 	for name, group := range config.Sources {
+		var dfs dotfiles
 		var files []string
 
 		if err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded)); err != nil {
-			return nil, newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
+			return newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
 		}
 
 		for _, path := range files {
@@ -26,19 +25,18 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 
 			sourceFileContents, err := ioutil.ReadFile(sourceFilePath)
 			if err != nil {
-				return nil, newError(err, fmt.Sprintf("Failed to read file %s", sourceFilePath))
+				return newError(err, fmt.Sprintf("Failed to read file %s", sourceFilePath))
 			}
 
 			var targetFileContents []byte
 			if err := checkFile(targetFilePath); err == nil {
 				targetFileContents, err = ioutil.ReadFile(targetFilePath)
 				if err != nil {
-					return nil, newError(err, fmt.Sprintf("Failed to read file %s", targetFilePath))
+					return newError(err, fmt.Sprintf("Failed to read file %s", targetFilePath))
 				}
 			}
 
 			dfs = append(dfs, dotfile{
-				commitMsg: group.CommitMsg,
 				sourceFile: file{
 					name:     sourceFileName,
 					path:     sourceFilePath,
@@ -51,9 +49,11 @@ func parseConfiguration(config configuration) (dotfiles, error) {
 				},
 			})
 		}
+		group.dotfiles = dfs
+		config.allDotfiles = append(config.allDotfiles, dfs...)
 	}
 
-	return dfs, nil
+	return nil
 }
 
 func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {

@@ -9,7 +9,6 @@ import (
 type dotfiles []dotfile
 
 type dotfile struct {
-	commitMsg  string
 	sourceFile file
 	targetFile file
 }
