@@ -78,9 +78,17 @@ func parseConfig(config *configuration) error {
 		config.PkglistPath = config.TargetPath
 	}
 
+	if item, ok := containsValidKeywords(config.Git.CommitMsg, gitKeywords); !ok {
+		return newError(nil, fmt.Sprintf("Git message has invalid keyword %s", item))
+	}
+
 	for name, group := range config.Sources {
 		if group.Path == "" {
 			return newError(nil, fmt.Sprintf("%s has no defined path", name))
+		}
+
+		if item, ok := containsValidKeywords(group.CommitMsg, gitKeywords); !ok {
+			return newError(nil, fmt.Sprintf("Git message for %s has invalid keyword %s", name, item))
 		}
 
 		if !isDisjoint(group.Included, group.Excluded) {

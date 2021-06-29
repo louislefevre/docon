@@ -13,7 +13,22 @@ import (
 // TODO: Add author section to config file and check if empty before running this.
 // TODO: Add check for empty commit message: if empty, use default. Maybe "{empty}" keyword in config if
 //       user wants to keep it truly empty?
-// TODO: Add check to see whether file is being added, updated, or removed.
+
+const (
+	gitStatusKeyword keywordType = "{status}"
+	gitFileKeyword   keywordType = "{file}"
+	gitDirKeyword    keywordType = "{dir}"
+	gitUserKeyword   keywordType = "{user}"
+	gitEmailKeyword  keywordType = "{email}"
+)
+
+var gitKeywords = keywordSet{
+	newKeyword(gitStatusKeyword),
+	newKeyword(gitFileKeyword),
+	newKeyword(gitDirKeyword),
+	newKeyword(gitUserKeyword),
+	newKeyword(gitEmailKeyword),
+}
 
 func commitAll(config *configuration) error {
 	for _, group := range config.Sources {
@@ -24,10 +39,10 @@ func commitAll(config *configuration) error {
 			} else if config.Git.CommitMsg != "" {
 				err = commit(config.TargetPath, df.targetFile.name, config.Git.CommitMsg)
 			} else {
-				err = commit(config.TargetPath, df.targetFile.name, "")
+				err = commit(config.TargetPath, df.targetFile.name, "{Status} {file}")
 			}
 			if err != nil {
-				return err
+				return newError(err, fmt.Sprintf("Failed to commit %s", df.targetFile.name))
 			}
 		}
 	}
@@ -60,16 +75,29 @@ func commit(dir string, file string, msg string) error {
 		return nil
 	}
 
-	if msg == "" {
-		msg, err = getCommitMessage(fileStatus, file)
-		if err != nil {
-			return err
-		}
+	statusString, err := getStatusString(fileStatus)
+	if err != nil {
+		return err
 	}
 
 	author, err := getAuthorSignature()
 	if err != nil {
 		return err
+	}
+
+	for _, kw := range gitKeywords {
+		switch kw.kwType {
+		case gitStatusKeyword:
+			msg = kw.transform(msg, statusString)
+		case gitFileKeyword:
+			msg = kw.transform(msg, file)
+		case gitDirKeyword:
+			msg = kw.transform(msg, "")
+		case gitUserKeyword:
+			msg = kw.transform(msg, author.Name)
+		case gitEmailKeyword:
+			msg = kw.transform(msg, author.Email)
+		}
 	}
 
 	_, err = tree.Commit(msg, &git.CommitOptions{Author: author})
@@ -80,18 +108,18 @@ func commit(dir string, file string, msg string) error {
 	return nil
 }
 
-func getCommitMessage(status git.StatusCode, file string) (string, error) {
+func getStatusString(status git.StatusCode) (string, error) {
 	switch status {
 	case git.Added:
-		return fmt.Sprintf("Add %s", file), nil
+		return "add", nil
 	case git.Modified:
-		return fmt.Sprintf("Update %s", file), nil
+		return "update", nil
 	case git.Deleted:
-		return fmt.Sprintf("Delete %s", file), nil
+		return "delete", nil
 	case git.Renamed:
-		return fmt.Sprintf("Rename %s", file), nil
+		return "rename", nil
 	case git.Copied:
-		return fmt.Sprintf("Copy %s", file), nil
+		return "copy", nil
 	default:
 		return "", fmt.Errorf("unknown git status code %s", string(status))
 	}
