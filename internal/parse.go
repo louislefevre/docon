@@ -60,21 +60,11 @@ func visit(files *[]string, included []string, excluded []string) filepath.WalkF
 	return func(path string, info os.FileInfo, err error) error {
 		if err := checkPath(path, nil); err != nil {
 			return err
-		}
-
-		if info.IsDir() {
+		} else if info.IsDir() {
 			return nil
-		}
-
-		if containsString(excluded, path) {
-			if containsString(included, path) {
-				warning := newWarning(fmt.Sprintf("file '%s' is both excluded and included", path))
-				fmt.Println(warning)
-			}
+		} else if containsString(excluded, path) {
 			return nil
-		}
-
-		if len(included) != 0 && !containsString(included, path) {
+		} else if len(included) != 0 && !containsString(included, path) {
 			return nil
 		}
 

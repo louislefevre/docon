@@ -29,6 +29,15 @@ func difference(slice1 []string, slice2 []string) []string {
 	return diff
 }
 
+func isDisjoint(s1 []string, s2 []string) bool {
+	for _, item := range s1 {
+		if containsString(s2, item) {
+			return false
+		}
+	}
+	return true
+}
+
 func checkErr(msg interface{}) {
 	if msg != nil {
 		fmt.Fprintln(os.Stderr, msg)

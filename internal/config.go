@@ -83,6 +83,10 @@ func parseConfig(config *configuration) error {
 			return newError(nil, fmt.Sprintf("%s has no defined path", name))
 		}
 
+		if !isDisjoint(group.Included, group.Excluded) {
+			return newError(nil, fmt.Sprintf("%s contains items both included and excluded", name))
+		}
+
 		for i, file := range group.Included {
 			group.Included[i] = filepath.Join(group.Path, file)
 		}
