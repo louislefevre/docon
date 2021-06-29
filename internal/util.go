@@ -94,8 +94,11 @@ func checkDir(path string) error {
 }
 
 func checkPaths(files []string, check func(fs.FileInfo) bool) error {
-	fn := func(path string, _ os.FileInfo, _ error) error {
-		err := checkPath(path, check)
+	fn := func(path string, _ os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		err = checkPath(path, check)
 		return err
 	}
 
