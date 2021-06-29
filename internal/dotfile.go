@@ -21,9 +21,7 @@ type file struct {
 
 func (dfs dotfiles) get(path string) (dotfile, bool) {
 	for _, d := range dfs {
-		if d.sourceFile.path == path {
-			return d, true
-		} else if d.targetFile.path == path {
+		if d.sourceFile.path == path || d.targetFile.path == path || d.targetFile.name == path {
 			return d, true
 		}
 	}

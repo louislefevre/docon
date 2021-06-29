@@ -24,8 +24,7 @@ func commitAll(config *configuration) error {
 			} else if config.Git.CommitMsg != "" {
 				err = commit(config.TargetPath, df.targetFile.name, config.Git.CommitMsg)
 			} else {
-				msg := fmt.Sprintf("Update %s", df.targetFile.name)
-				err = commit(config.TargetPath, df.targetFile.name, msg)
+				err = commit(config.TargetPath, df.targetFile.name, "")
 			}
 			if err != nil {
 				return err
@@ -51,6 +50,23 @@ func commit(dir string, file string, msg string) error {
 		return err
 	}
 
+	status, err := tree.Status()
+	if err != nil {
+		return err
+	}
+
+	fileStatus := status.File(file).Staging
+	if fileStatus == git.Untracked {
+		return nil
+	}
+
+	if msg == "" {
+		msg, err = getCommitMessage(fileStatus, file)
+		if err != nil {
+			return err
+		}
+	}
+
 	author, err := getAuthorSignature()
 	if err != nil {
 		return err
@@ -62,6 +78,23 @@ func commit(dir string, file string, msg string) error {
 	}
 
 	return nil
+}
+
+func getCommitMessage(status git.StatusCode, file string) (string, error) {
+	switch status {
+	case git.Added:
+		return fmt.Sprintf("Add %s", file), nil
+	case git.Modified:
+		return fmt.Sprintf("Update %s", file), nil
+	case git.Deleted:
+		return fmt.Sprintf("Delete %s", file), nil
+	case git.Renamed:
+		return fmt.Sprintf("Rename %s", file), nil
+	case git.Copied:
+		return fmt.Sprintf("Copy %s", file), nil
+	default:
+		return "", fmt.Errorf("unknown git status code %s", string(status))
+	}
 }
 
 func getAuthorSignature() (*object.Signature, error) {

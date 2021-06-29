@@ -19,7 +19,7 @@ type configuration struct {
 			email string `mapstructure:"email"`
 		}
 	} `mapstructure:"git"`
-	Sources map[string]struct {
+	Sources map[string]*struct {
 		Path      string   `mapstructure:"path"`
 		CommitMsg string   `mapstructure:"msg"`
 		Included  []string `mapstructure:"include"`
