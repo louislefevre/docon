@@ -3,18 +3,12 @@ Developers log for todos and plans.
 
 
 ## Todo
-- Create a Path struct.
-- Create a filesystem package with tools for manipulating file system.
-- Rename cmd files to end with "Cmd".
 - Move error handling from execute.go to calls in cmd/?
-- Split up repo list into a separate file? Have config exclusively for docon configuration options?
 - Change updating print so that if file is being added for the first time, it says "adding" rather than "updating".
-- Add check for if passed repo is directory and exists.
 - Check if includes/excludes works fine if is directory.
 - Remove trailing slash from SystemFileName, which occurs whenever `path` is passed with no trailing slash.
 - Plan out project structure in terms of packages, package inputs/outputs, etc.
-- Add custom error struct with pretty print method.
-  - Struct includes error message from the system, simpler error message written by me, and perhaps code failure line/file if possible.
+- Add warning if an excluded file is still stored in target repository.
 
 ### Resources
 - https://github.com/go-git/go-git
@@ -44,7 +38,6 @@ Developers log for todos and plans.
 - Flag for specifying file permissions for when new folders/files are created automatically.
 - Flag for verbose mode which prints out last modified, size, etc of each file being processed.
 
-
 ### Diff
 - Show diff between system dotfiles and repo dotfiles.
 - Diff is coloured and similar to Git diff.
@@ -59,6 +52,16 @@ Developers log for todos and plans.
 - Automatically generates git commit messages:
   - Default is "Update directory/filename".
   - Can specify specific messages for each config group in config.yaml file.
+- Flag for verbose mode which prints out commit object.
+- Config fields for author and email.
+  - If not provided, uses user config file by default.
+- Commits all files by default, can use flag for specifying individual files.
+- Config file field for adding either entire directory in a single commit (only if >1 file), or individual files.
+- Config file contains author section for commit author data. If empty, uses gitconfig file.
+- If commit message in config is empty, uses a default commit message.
+  - Accepts "{empty}" keyword in config if user wishes to keep the message truly empty.
+- Config file fields takes a global git commit message. This applies to all commits, unless there is a message defined for a dotfile group, which will override it.
+- Config file accepts fields for modifying default Git status strings.
 
 ### Check
 - Checks if dotfiles need to be synced or if they're up to date.
