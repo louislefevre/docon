@@ -51,11 +51,11 @@ func newError(err error, msg string) error {
 	if err == nil && msg == "" {
 		panic("Error contents cannot be empty")
 	}
-	if err != nil {
-		errMsg += fmt.Sprintf("%s", err)
-	}
 	if msg != "" {
-		errMsg += fmt.Sprintf("\n%s", msg)
+		errMsg += msg
+	}
+	if err != nil {
+		errMsg += fmt.Sprintf("\n%s", err)
 	}
 
 	return errors.New(color.RedString(errMsg))
