@@ -129,7 +129,7 @@ func verifyConfig(config *configuration) error {
 			return newError(err, fmt.Sprintf("Failed to verify path for %s", name))
 		}
 
-		if err := checkPaths(group.Included, nil); err != nil {
+		if err := checkTrees(group.Included, nil); err != nil {
 			return newError(err, fmt.Sprintf("Failed to verify included path for %s", name))
 		}
 
