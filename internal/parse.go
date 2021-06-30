@@ -58,13 +58,17 @@ func gatherDotfiles(config *configuration) error {
 
 func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
-		if err := checkPath(path, nil); err != nil {
-			return err
-		} else if info.IsDir() {
+		if len(*files) > 100 {
+			return fmt.Errorf("file tree is too large")
+		} else if len(included) != 0 && !containsString(included, path) {
 			return nil
 		} else if containsString(excluded, path) {
 			return nil
-		} else if len(included) != 0 && !containsString(included, path) {
+		} else if info.IsDir() {
+			return nil
+		} else if err := checkPath(path, nil); err != nil {
+			warning := newWarning(err, fmt.Sprintf("Failed to walk %s", path))
+			fmt.Println(warning)
 			return nil
 		}
 

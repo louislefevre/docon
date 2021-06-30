@@ -86,7 +86,7 @@ func parseConfig(config *configuration) error {
 	for name, group := range config.Sources {
 		if group.Ignore {
 			delete(config.Sources, name)
-			warning := newWarning(fmt.Sprintf("Ignoring %s", name))
+			warning := newWarning(nil, fmt.Sprintf("Ignoring %s", name))
 			fmt.Println(warning)
 			continue
 		}

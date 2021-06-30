@@ -46,14 +46,11 @@ func checkErr(msg interface{}) {
 }
 
 func newError(err error, msg string) error {
-	errMsg := "ERROR: "
-
-	if err == nil && msg == "" {
+	if msg == "" {
 		panic("Error contents cannot be empty")
 	}
-	if msg != "" {
-		errMsg += msg
-	}
+
+	errMsg := fmt.Sprintf("ERROR: %s", msg)
 	if err != nil {
 		errMsg += fmt.Sprintf("\n%s", err)
 	}
@@ -61,12 +58,16 @@ func newError(err error, msg string) error {
 	return errors.New(color.RedString(errMsg))
 }
 
-func newWarning(msg string) string {
+func newWarning(err error, msg string) string {
 	if msg == "" {
 		panic("Warning contents cannot be empty")
 	}
 
 	warnMsg := fmt.Sprintf("WARNING: %s", msg)
+	if err != nil {
+		warnMsg += fmt.Sprintf("\n%s", err)
+	}
+
 	return color.YellowString(warnMsg)
 }
 
