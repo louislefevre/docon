@@ -22,6 +22,7 @@ type configuration struct {
 	Sources map[string]*struct {
 		Path      string   `mapstructure:"path"`
 		CommitMsg string   `mapstructure:"msg"`
+		Ignore    bool     `mapstructure:"ignore"`
 		Included  []string `mapstructure:"include"`
 		Excluded  []string `mapstructure:"exclude"`
 		dotfiles  dotfiles
@@ -83,6 +84,13 @@ func parseConfig(config *configuration) error {
 	}
 
 	for name, group := range config.Sources {
+		if group.Ignore {
+			delete(config.Sources, name)
+			warning := newWarning(fmt.Sprintf("Ignoring %s", name))
+			fmt.Println(warning)
+			continue
+		}
+
 		if group.Path == "" {
 			return newError(nil, fmt.Sprintf("%s has no defined path", name))
 		}
