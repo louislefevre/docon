@@ -1,6 +1,10 @@
 package internal
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/spf13/viper"
+)
 
 func ExecuteSync() {
 	config, err := initConfig()
@@ -27,6 +31,7 @@ func ExecutePkg() {
 
 func ExecuteVerify() {
 	_, err := initConfig()
+	fmt.Printf("Using config file %s\n", viper.ConfigFileUsed())
 	if err != nil {
 		fmt.Println("Config file syntax is invalid.")
 		checkErr(err)
