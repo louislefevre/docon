@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"bytes"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
@@ -52,15 +54,55 @@ func initConfig() (*configuration, error) {
 	return &config, nil
 }
 
+func createConfig() error {
+	template := multilineString(`
+	sources:
+	  docon:
+	    include:
+	    - config.yaml
+	    path: /home/.config/docon/
+	target: /path/to/target
+	`)
+
+	if err := viper.ReadConfig(bytes.NewBuffer([]byte(template))); err != nil {
+		return err
+	}
+
+	// TODO: Check that directory path exists before writing.
+	if err := viper.SafeWriteConfig(); err != nil {
+		return err
+	}
+
+	viper.WatchConfig()
+	fmt.Printf("Created configuration file at %s\n", viper.ConfigFileUsed())
+	fmt.Println("Modify the files contents to specify your configuration settings")
+	return nil
+}
+
 func loadConfig(config *configuration) error {
-	if home, err := homedir.Dir(); err == nil {
-		viper.SetConfigFile(fmt.Sprintf("%s/.config/docon/config.yaml", home))
-	} else {
+	home, err := homedir.Dir()
+	if err != nil {
 		return newError(err, "Failed to find home directory")
 	}
 
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(fmt.Sprintf("%s/.config/docon/", home))
+	viper.AddConfigPath("/etc/docon/")
+	viper.AddConfigPath(".")
+
 	if err := viper.ReadInConfig(); err != nil {
-		return newError(err, "Failed to read config file")
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			dialog := "Config file not found - would you like to create one? [yes/no]"
+			if ok := readBooleanInput(dialog); ok {
+				if err := createConfig(); err != nil {
+					return newError(err, "Failed to create config file")
+				}
+			}
+			os.Exit(0)
+		} else {
+			return newError(err, "Failed to read config file")
+		}
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
@@ -129,7 +171,7 @@ func verifyConfig(config *configuration) error {
 			return newError(err, fmt.Sprintf("Failed to verify path for %s", name))
 		}
 
-		if err := checkTrees(group.Included, nil); err != nil {
+		if err := checkPaths(group.Included, nil); err != nil {
 			return newError(err, fmt.Sprintf("Failed to verify included path for %s", name))
 		}
 

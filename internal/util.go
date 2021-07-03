@@ -1,13 +1,16 @@
 package internal
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
+	"github.com/lithammer/dedent"
 )
 
 // Checks if a string str is within slice s.
@@ -41,6 +44,41 @@ func isDisjoint(s1 []string, s2 []string) bool {
 		}
 	}
 	return true
+}
+
+// Formats a multiline string by removing leading whitespace and linebreaks.
+func multilineString(str string) string {
+	str = strings.TrimPrefix(str, "\n")
+	return dedent.Dedent(str)
+}
+
+// Reads data from standard input.
+// Takes optional pretext strings as parameters, which will be printed prior
+// to input being read.
+func readStringInput(pretext ...string) string {
+	for _, text := range pretext {
+		fmt.Println(text)
+	}
+	fmt.Print("> ")
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	return strings.ToLower(strings.TrimSpace(input))
+}
+
+// Reads data from standard input and requests a boolean input until request is satisfied.
+// Takes optional pretext strings as parameters, which will be printed prior
+// to input being read.
+func readBooleanInput(pretext ...string) bool {
+	input := readStringInput(pretext...)
+
+	switch input {
+	case "yes", "y":
+		return true
+	case "no", "n":
+		return false
+	default:
+		return readBooleanInput("Invalid input: enter yes/true or no/false.")
+	}
 }
 
 // Checks whether an error has occurred.
