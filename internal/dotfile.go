@@ -2,8 +2,11 @@ package internal
 
 import (
 	"bytes"
+	"fmt"
 
-	"github.com/sergi/go-diff/diffmatchpatch"
+	"github.com/hexops/gotextdiff"
+	"github.com/hexops/gotextdiff/myers"
+	"github.com/hexops/gotextdiff/span"
 )
 
 type dotfiles []dotfile
@@ -39,7 +42,8 @@ func (df dotfile) lineCountDiff() int {
 }
 
 func (df dotfile) diff() string {
-	dmp := diffmatchpatch.New()
-	diffs := dmp.DiffMain(string(df.sourceFile.contents), string(df.targetFile.contents), false)
-	return dmp.DiffPrettyText(diffs)
+	edits := myers.ComputeEdits(span.URIFromPath(df.sourceFile.path),
+		string(df.sourceFile.contents), string(df.targetFile.contents))
+	diff := gotextdiff.ToUnified(df.sourceFile.path, df.targetFile.path, string(df.sourceFile.contents), edits)
+	return fmt.Sprint(diff)
 }

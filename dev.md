@@ -44,7 +44,7 @@ Developers log for todos and plans.
 ### Diff
 - [x] Show diff between system dotfiles and repo dotfiles.
 - [x] Diff is shown for all files in config by default.
-- [ ] Diff is coloured and similar to Git diff.
+- [x] Diff is coloured and similar to Git diff.
 - [ ] Flag for specifying which dotfiles to show diff for.
 - [ ] Flag for specifying which dotfiles to ignore.
 - [ ] Flag for interactive mode.

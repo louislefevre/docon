@@ -36,14 +36,18 @@ func showDiffs(config *configuration, paths []string) {
 	if len(paths) != 0 {
 		for _, path := range paths {
 			if df, ok := dfs.get(path); ok {
-				fmt.Println(df.diff())
+				if diff := df.diff(); diff != "" {
+					fmt.Println(diff)
+				}
 			} else {
 				fmt.Printf("Could not show diff for %s: file is not being tracked\n", path)
 			}
 		}
 	} else {
 		for _, df := range dfs {
-			fmt.Println(df.diff())
+			if diff := df.diff(); diff != "" {
+				fmt.Println(diff)
+			}
 		}
 	}
 }
