@@ -13,8 +13,16 @@ func gatherDotfiles(config *configuration) error {
 		var dfs dotfiles
 		var files []string
 
-		if err := filepath.Walk(group.Path, visit(&files, group.Included, group.Excluded)); err != nil {
-			return newError(err, fmt.Sprintf("Failed to walk file tree for %s", group.Path))
+		if (len(group.Included) != 0) {
+			for _, path := range group.Included {
+				if err := checkPath(path, nil); err != nil {
+					return newError(err, fmt.Sprintf("Failed to find files for %s, missing path %s", name, path))
+				}
+			}
+		} else {
+			if err := filepath.Walk(group.Path, visit(&files, group.Excluded)); err != nil {
+				return newError(err, fmt.Sprintf("Failed to walk file tree for %s", name))
+			}
 		}
 
 		for _, path := range files {
@@ -56,12 +64,10 @@ func gatherDotfiles(config *configuration) error {
 	return nil
 }
 
-func visit(files *[]string, included []string, excluded []string) filepath.WalkFunc {
+func visit(files *[]string, excluded []string) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if len(*files) > 100 {
 			return fmt.Errorf("file tree is too large")
-		} else if len(included) != 0 && !containsString(included, path) {
-			return nil
 		} else if containsString(excluded, path) {
 			return nil
 		} else if info.IsDir() {
