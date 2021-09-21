@@ -81,15 +81,6 @@ func readBooleanInput(pretext ...string) bool {
 	}
 }
 
-// Checks whether an error has occurred.
-// Execution stops immediately if true. No-op if false.
-func checkErr(msg interface{}) {
-	if msg != nil {
-		fmt.Fprintln(os.Stderr, msg)
-		os.Exit(1)
-	}
-}
-
 // Returns a formatted error object.
 // The err parameter can be nil, though execution will fail if msg is empty.
 func newError(err error, msg string) error {

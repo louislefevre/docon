@@ -9,8 +9,8 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync local dotfiles with repository",
 	Long:  `Retrieves all dotfiles from the system and updates them in the repository.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		internal.ExecuteSync()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return internal.ExecuteSync()
 	},
 }
 

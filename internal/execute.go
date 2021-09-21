@@ -6,44 +6,67 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ExecuteSync() {
+func ExecuteSync() error {
 	config, err := initConfig()
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	err = syncFiles(config)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ExecuteDiff(filePaths []string) {
+func ExecuteDiff(filePaths []string) error {
 	config, err := initConfig()
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	showDiffs(config, filePaths)
+	return nil
 }
 
-func ExecutePkg() {
+func ExecutePkg() error {
 	config, err := initConfig()
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	err = genPackageList(config)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func ExecuteVerify() {
+func ExecuteVerify() error {
 	_, err := initConfig()
 	fmt.Printf("Using config file %s\n", viper.ConfigFileUsed())
+
 	if err != nil {
 		fmt.Println("Config file syntax is invalid.")
-		checkErr(err)
+		return err
 	} else {
 		fmt.Println("Config file syntax is valid.")
+		return nil
 	}
 }
 
-func ExecuteCommit() {
+func ExecuteCommit() error {
 	config, err := initConfig()
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	err = commitAll(config)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

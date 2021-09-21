@@ -1,7 +1,13 @@
 package main
 
-import "github.com/louislefevre/docon/cmd"
+import (
+	"os"
+
+	"github.com/louislefevre/docon/cmd"
+)
 
 func main() {
-	cmd.ExecuteRoot()
+	if exitCode := cmd.ExecuteRoot(); exitCode != 0 {
+		os.Exit(exitCode)
+	}
 }
