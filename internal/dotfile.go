@@ -42,8 +42,8 @@ func (df dotfile) lineCountDiff() int {
 }
 
 func (df dotfile) diff() string {
-	edits := myers.ComputeEdits(span.URIFromPath(df.sourceFile.path),
-		string(df.sourceFile.contents), string(df.targetFile.contents))
-	diff := gotextdiff.ToUnified(df.sourceFile.path, df.targetFile.path, string(df.sourceFile.contents), edits)
+	edits := myers.ComputeEdits(span.URIFromPath(df.targetFile.path),
+		string(df.targetFile.contents), string(df.sourceFile.contents))
+	diff := gotextdiff.ToUnified(df.targetFile.path, df.sourceFile.path, string(df.targetFile.contents), edits)
 	return fmt.Sprint(diff)
 }
