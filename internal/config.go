@@ -80,16 +80,20 @@ func createConfig() error {
 }
 
 func loadConfig(config *configuration) error {
-	if home, err := homedir.Dir(); err == nil {
-		viper.AddConfigPath(fmt.Sprintf("%s/.config/docon/", home))
+	if configFile := viper.GetString("config"); configFile != "" {
+		viper.SetConfigFile(configFile)
 	} else {
-		warning := newWarning(err, "Failed to find home directory")
-		fmt.Println(warning)
-	}
+		if home, err := homedir.Dir(); err == nil {
+			viper.AddConfigPath(fmt.Sprintf("%s/.config/docon/", home))
+		} else {
+			warning := newWarning(err, "Failed to find home directory")
+			fmt.Println(warning)
+		}
 
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+		viper.SetConfigName("config")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(".")
+	}
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

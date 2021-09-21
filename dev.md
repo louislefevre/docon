@@ -22,7 +22,7 @@ Developers log for todos and plans.
 ## Internal
 ### Config File
 - [x] Searched for in multiple file locations (~/.config/docon/ and current directory).
-- [ ] Flag for specifying config file location.
+- [x] Flag for specifying config file location.
 - [ ] Config field for renaming files; dictionary where keys are original file names and values are new file names. Files are renamed after being synced and before being committed.
 
 ### Interactive Mode
