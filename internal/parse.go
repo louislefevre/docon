@@ -18,6 +18,7 @@ func gatherDotfiles(config *configuration) error {
 				if err := checkPath(path, nil); err != nil {
 					return newError(err, fmt.Sprintf("Failed to find files for %s, missing path %s", name, path))
 				}
+				files = append(files, path)
 			}
 		} else {
 			if err := filepath.Walk(group.Path, visit(&files, group.Excluded)); err != nil {
