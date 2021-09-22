@@ -1,0 +1,12 @@
+mkdir dotfiles/packages/
+
+docon verify -c config.yaml
+
+
+-- config.yaml --
+target: dotfiles/
+pkglist: dotfiles/packages
+git:
+  author:
+    name: John Smith
+    email: johnsmith@gmail.com

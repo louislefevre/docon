@@ -9,9 +9,11 @@ require (
 	github.com/hexops/gotextdiff v1.0.3
 	github.com/lithammer/dedent v1.1.0
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 )
