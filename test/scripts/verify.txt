@@ -1,12 +1,149 @@
-mkdir dotfiles/packages/
+###### TESTS ######
+mkdir targets/
+mkdir targets/pkglist/
 
-docon verify -c config.yaml
+# Config file is valid
+docon verify -c config1.yaml
+stdout '^Config file syntax is valid.$'
+
+# Target path is not set raises error
+! docon verify -c config2.yaml
+stderr '^ERROR: Target path has not been set$'
+
+# Target does not exist raises error
+! docon verify -c config3.yaml
+stderr '^stat invalid/: no such file or directory$'
+
+# Target is not a directory raises error
+! docon verify -c config4.yaml
+stderr '^sources/file1.txt is an invalid path$'
+
+# Pkglist does not exist raises error
+! docon verify -c config5.yaml
+stderr '^stat targets/invalid/: no such file or directory$'
+
+# Pkglist is not a directory raises error
+! docon verify -c config6.yaml
+stderr '^sources/file1.txt is an invalid path$'
+
+# Files both included and excluded raises error
+! docon verify -c config7.yaml
+stderr '^ERROR: files contains items both included and excluded$'
+rm targets/files/
+
+# Global Git message has invalid keyword raises error
+! docon verify -c config8.yaml
+stderr '^ERROR: Git message has invalid keyword {test}$'
+
+# Group path is not set raises error
+! docon verify -c config9.yaml
+stderr '^ERROR: files has no defined path$'
+
+# Group path does not exist raises error
+! docon verify -c config10.yaml
+stderr '^stat invalid/: no such file or directory$'
+
+# Group path is not a directory raises error
+! docon verify -c config11.yaml
+stderr '^sources/file1.txt is an invalid path$'
+
+# Group included does not exist raises error
+! docon verify -c config12.yaml
+stderr '^stat sources/invalid.txt: no such file or directory$'
+
+# Group excluded does not exist raises error
+! docon verify -c config13.yaml
+stderr '^stat sources/invalid.txt: no such file or directory$'
+
+# Group Git message has invalid keyword raises error
+! docon verify -c config14.yaml
+stderr '^ERROR: Git message for files has invalid keyword {test}$'
 
 
--- config.yaml --
-target: dotfiles/
-pkglist: dotfiles/packages
+###### FILES ######
+-- sources/file1.txt --
+File 1 content
+
+-- sources/file2.txt --
+File 2 content
+
+-- config1.yaml --
+target: targets/
+pkglist: targets/pkglist
 git:
-  author:
-    name: John Smith
-    email: johnsmith@gmail.com
+  msg: "{file} has been {status}"
+sources:
+  files:
+    path: sources/
+    include: [file1.txt]
+    exclude: [file2.txt]
+    msg: "{file} added by {user}"
+
+-- config2.yaml --
+target:
+
+-- config3.yaml --
+target: invalid/
+
+-- config4.yaml --
+target: sources/file1.txt
+
+-- config5.yaml --
+target: targets/
+pkglist: targets/invalid/
+
+-- config6.yaml --
+target: targets/
+pkglist: sources/file1.txt
+
+-- config7.yaml --
+target: targets/
+sources:
+  files:
+    path: sources
+    include: [file1.txt, file2.txt]
+    exclude: [file2.txt]
+
+-- config8.yaml --
+target: targets/
+git:
+  msg: "{test} message"
+
+-- config9.yaml --
+target: targets/
+sources:
+  files:
+    path: ""
+
+-- config10.yaml --
+target: targets/
+sources:
+  files:
+    path: invalid/
+
+-- config11.yaml --
+target: targets/
+sources:
+  files:
+    path: sources/file1.txt
+
+-- config12.yaml --
+target: targets/
+sources:
+  files:
+    path: sources/
+    include: [invalid.txt]
+
+-- config13.yaml --
+target: targets/
+sources:
+  files:
+    path: sources/
+    exclude: [invalid.txt]
+
+-- config14.yaml --
+target: targets/
+sources:
+  files:
+    path: sources/
+    msg: "{test} message"
