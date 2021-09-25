@@ -32,7 +32,7 @@ type configuration struct {
 	allDotfiles dotfiles
 }
 
-func initConfig() (*configuration, error) {
+func InitConfig() (*configuration, error) {
 	var config configuration
 
 	if err := loadConfig(&config); err != nil {

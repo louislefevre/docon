@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func syncFiles(config *configuration) error {
+func SyncFiles(config *configuration) error {
 	dfs := config.allDotfiles
 
 	for _, df := range dfs {
@@ -30,7 +30,7 @@ func syncFiles(config *configuration) error {
 	return nil
 }
 
-func showDiffs(config *configuration, paths []string) {
+func ShowDiffs(config *configuration, paths []string) {
 	dfs := config.allDotfiles
 
 	if len(paths) != 0 {

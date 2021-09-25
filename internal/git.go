@@ -30,7 +30,7 @@ var gitKeywords = keywordSet{
 	newKeyword(gitEmailKeyword),
 }
 
-func commitAll(config *configuration) error {
+func CommitAll(config *configuration) error {
 	for _, group := range config.Sources {
 		for _, df := range group.dotfiles {
 			var err error

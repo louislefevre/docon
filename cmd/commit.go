@@ -10,10 +10,24 @@ var commitCmd = &cobra.Command{
 	Short: "Commit changes",
 	Long:  `Automatically commit target dotfiles to Git repository with pre-defined commit messages.`,
 	RunE: func(cmd *cobra.Command, args []string) error{
-		return internal.ExecuteCommit()
+		return executeCommit()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(commitCmd)
+}
+
+func executeCommit() error {
+	config, err := internal.InitConfig()
+	if err != nil {
+		return err
+	}
+
+	err = internal.CommitAll(config)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
