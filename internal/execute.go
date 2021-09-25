@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func ExecuteSync() error {
+func ExecuteSync(commitFiles bool) error {
 	config, err := initConfig()
 	if err != nil {
 		return err
@@ -15,6 +15,12 @@ func ExecuteSync() error {
 	err = syncFiles(config)
 	if err != nil {
 		return err
+	}
+
+	if commitFiles {
+		if err = commitAll(config); err != nil {
+			return err
+		}
 	}
 
 	return nil

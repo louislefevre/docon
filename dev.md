@@ -34,7 +34,7 @@ Developers log for todos and plans.
 ### Sync
 - [x] Sync system files with target files.
 - [x] Syncs all files in config by default
-- [ ] Flag for automatically running commit command after syncing.
+- [x] Flag for automatically running commit command after syncing.
 - [ ] Flag for specifying file permissions for when new folders/files are created automatically.
 - [ ] Flag for verbose mode which prints out last modified, size, etc of each file being processed.
 - [ ] Flag for specifying which dotfiles to sync.

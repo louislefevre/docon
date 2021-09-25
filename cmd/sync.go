@@ -5,15 +5,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var commitFiles bool
+
 var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync local dotfiles with repository",
 	Long:  `Retrieves all dotfiles from the system and updates them in the repository.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return internal.ExecuteSync()
+		return internal.ExecuteSync(commitFiles)
 	},
 }
 
 func init() {
+	syncCmd.PersistentFlags().BoolVarP(&commitFiles, "commit", "c", false, "Commit dotfiles after syncing")
 	rootCmd.AddCommand(syncCmd)
 }
