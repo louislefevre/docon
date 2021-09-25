@@ -17,8 +17,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringP("config", "c", "",
-		"config file (default is $HOME/.config/docon/config.yaml)")
+	rootCmd.PersistentFlags().String("config", "", "config file (default is $HOME/.config/docon/config.yaml)")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 }
 

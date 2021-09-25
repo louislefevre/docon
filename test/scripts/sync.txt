@@ -2,13 +2,13 @@
 mkdir targets/
 
 # Files are copied to target
-docon sync -c config1.yaml
+docon sync --config config1.yaml
 exists targets/files/file1.txt
 exists targets/files/file2.txt
 rm targets/files/
 
 # File content is copied to target
-docon sync -c config1.yaml
+docon sync --config config1.yaml
 exec cat targets/files/file1.txt
 stdout '^File 1 content$'
 exec cat targets/files/file2.txt
@@ -16,19 +16,19 @@ stdout '^File 2 content$'
 rm targets/files/
 
 # Only included files are copied to target
-docon sync -c config2.yaml
+docon sync --config config2.yaml
 exists targets/files/file1.txt
 ! exists targets/files/file2.txt
 rm targets/files/
 
 # Excluded files are not copied to target
-docon sync -c config3.yaml
+docon sync --config config3.yaml
 ! exists targets/files/file1.txt
 exists targets/files/file2.txt
 rm targets/files/
 
 # Ignored groups are not copied to target
-docon sync -c config4.yaml
+docon sync --config config4.yaml
 exists targets/files/file1.txt
 ! exists targets/files2/file2.txt
 rm targets/files/
