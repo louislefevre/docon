@@ -39,6 +39,7 @@ Developers log for todos and plans.
 - [ ] Flag for verbose mode which prints out last modified, size, etc of each file being processed.
 - [ ] Flag for specifying which dotfiles to sync.
 - [ ] Flag for specifying which dotfiles to ignore.
+- [x] Flag for specifying commit message.
 - [ ] Flag for interactive mode.
 
 ### Diff
@@ -61,6 +62,7 @@ Developers log for todos and plans.
 - [ ] Flag for verbose mode which prints out commit object.
 - [ ] Flag for specifying which dotfiles to commit.
 - [ ] Flag for specifying which dotfiles to ignore.
+- [x] Flag for specifying commit message.
 - [ ] Flag for interactive mode.
 
 ### Check

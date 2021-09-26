@@ -3,9 +3,8 @@ package cmd
 import (
 	"github.com/louislefevre/docon/internal"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-var commitFiles bool
 
 var syncCmd = &cobra.Command{
 	Use:   "sync",
@@ -17,7 +16,12 @@ var syncCmd = &cobra.Command{
 }
 
 func init() {
-	syncCmd.PersistentFlags().BoolVarP(&commitFiles, "commit", "c", false, "Commit dotfiles after syncing")
+	syncCmd.PersistentFlags().BoolP("commit", "c", false, "Commit dotfiles after syncing")
+	viper.BindPFlag("commit", syncCmd.PersistentFlags().Lookup("commit"))
+
+	syncCmd.PersistentFlags().StringP("message", "m", "", "Global commit message (config override)")
+	viper.BindPFlag("message", syncCmd.PersistentFlags().Lookup("message"))
+
 	rootCmd.AddCommand(syncCmd)
 }
 
@@ -32,7 +36,7 @@ func executeSync() error {
 		return err
 	}
 
-	if commitFiles {
+	if viper.GetBool("commit") {
 		if err = internal.CommitAll(config); err != nil {
 			return err
 		}

@@ -39,6 +39,10 @@ func InitConfig() (*configuration, error) {
 		return &config, err
 	}
 
+	if err := applyFlags(&config); err != nil {
+		return &config, err
+	}
+
 	if err := parseConfig(&config); err != nil {
 		return &config, err
 	}
@@ -111,6 +115,14 @@ func loadConfig(config *configuration) error {
 
 	if err := viper.Unmarshal(&config); err != nil {
 		return newError(err, "Failed to unmarshal config file")
+	}
+
+	return nil
+}
+
+func applyFlags(config *configuration) error {
+	if commitMsg := viper.GetString("message"); commitMsg != "" {
+		config.Git.CommitMsg = commitMsg
 	}
 
 	return nil
