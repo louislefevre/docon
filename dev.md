@@ -37,7 +37,7 @@ Developers log for todos and plans.
 - [x] Flag for automatically running commit command after syncing.
 - [ ] Flag for specifying file permissions for when new folders/files are created automatically.
 - [ ] Flag for verbose mode which prints out last modified, size, etc of each file being processed.
-- [ ] Flag for specifying which dotfiles to sync.
+- [x] Flag for specifying which dotfiles to sync.
 - [ ] Flag for specifying which dotfiles to ignore.
 - [x] Flag for specifying commit message.
 - [ ] Flag for interactive mode.

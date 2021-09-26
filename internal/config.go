@@ -5,31 +5,36 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
 type configuration struct {
-	TargetPath  string `mapstructure:"target"`
-	PkglistPath string `mapstructure:"pkglist"`
-	Git         struct {
-		Dir       bool   `mapstructure:"dir"`
-		CommitMsg string `mapstructure:"msg"`
-		Author    struct {
-			name  string `mapstructure:"name"`
-			email string `mapstructure:"email"`
-		}
-	} `mapstructure:"git"`
-	Sources map[string]*struct {
-		Path      string   `mapstructure:"path"`
-		CommitMsg string   `mapstructure:"msg"`
-		Ignore    bool     `mapstructure:"ignore"`
-		Included  []string `mapstructure:"include"`
-		Excluded  []string `mapstructure:"exclude"`
-		dotfiles  dotfiles
-	} `mapstructure:"sources"`
+	TargetPath  string                   `mapstructure:"target"`
+	PkglistPath string                   `mapstructure:"pkglist"`
+	Git         gitStruct                `mapstructure:"git"`
+	Sources     map[string]*sourceStruct `mapstructure:"sources"`
 	allDotfiles dotfiles
+}
+
+type gitStruct struct {
+	Dir       bool   `mapstructure:"dir"`
+	CommitMsg string `mapstructure:"msg"`
+	Author    struct {
+		name  string `mapstructure:"name"`
+		email string `mapstructure:"email"`
+	}
+}
+
+type sourceStruct struct {
+	Path      string   `mapstructure:"path"`
+	CommitMsg string   `mapstructure:"msg"`
+	Ignore    bool     `mapstructure:"ignore"`
+	Included  []string `mapstructure:"include"`
+	Excluded  []string `mapstructure:"exclude"`
+	dotfiles  dotfiles
 }
 
 func InitConfig() (*configuration, error) {
@@ -123,6 +128,26 @@ func loadConfig(config *configuration) error {
 func applyFlags(config *configuration) error {
 	if commitMsg := viper.GetString("message"); commitMsg != "" {
 		config.Git.CommitMsg = commitMsg
+	}
+
+	if included := viper.GetStringSlice("only"); len(included) > 0 {
+		config.Sources = make(map[string]*sourceStruct)
+
+		for _, include := range included {
+			var group string = ""
+			var path string = include
+
+			if strings.Contains(include, "@") {
+				if strings.Count(include, "@") > 1 {
+					return newError(nil, "You can only specify one group per path")
+				}
+
+				split := strings.Split(include, "@")
+				group, path = split[0], split[1]
+			}
+
+			config.Sources[group] = &sourceStruct{Path: path}
+		}
 	}
 
 	return nil

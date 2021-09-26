@@ -22,6 +22,9 @@ func init() {
 	syncCmd.PersistentFlags().StringP("message", "m", "", "Global commit message (config override)")
 	viper.BindPFlag("message", syncCmd.PersistentFlags().Lookup("message"))
 
+	syncCmd.PersistentFlags().StringSliceP("only", "o", []string{}, "Only sync these paths (config override)")
+	viper.BindPFlag("only", syncCmd.PersistentFlags().Lookup("only"))
+
 	rootCmd.AddCommand(syncCmd)
 }
 
