@@ -22,6 +22,9 @@ func init() {
 
 	rootCmd.PersistentFlags().StringSliceP("only", "o", []string{}, "Only use these groups (config override)")
 	viper.BindPFlag("only", rootCmd.PersistentFlags().Lookup("only"))
+
+	rootCmd.PersistentFlags().StringSliceP("ignore", "i", []string{}, "Ignore these groups (config override)")
+	viper.BindPFlag("ignore", rootCmd.PersistentFlags().Lookup("ignore"))
 }
 
 func ExecuteRoot() int {

@@ -138,6 +138,14 @@ func applyFlags(config *configuration) error {
 		}
 	}
 
+	if excluded := viper.GetStringSlice("ignore"); len(excluded) > 0 {
+		for name, source := range config.Sources {
+			if containsString(excluded, name) {
+				source.Ignore = true
+			}
+		}
+	}
+
 	return nil
 }
 

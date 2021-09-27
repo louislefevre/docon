@@ -39,7 +39,7 @@ Developers log for todos and plans.
 - [ ] Flag for specifying file permissions for when new folders/files are created automatically.
 - [ ] Flag for verbose mode which prints out last modified, size, etc of each file being processed.
 - [x] Flag for specifying which dotfiles to sync.
-- [ ] Flag for specifying which dotfiles to ignore.
+- [x] Flag for specifying which dotfiles to ignore.
 - [x] Flag for specifying commit message.
 - [ ] Flag for interactive mode.
 
@@ -48,7 +48,7 @@ Developers log for todos and plans.
 - [x] Diff is shown for all files in config by default.
 - [x] Diff is coloured and similar to Git diff.
 - [x] Flag for specifying which dotfiles to show diff for.
-- [ ] Flag for specifying which dotfiles to ignore.
+- [x] Flag for specifying which dotfiles to ignore.
 - [ ] Flag for interactive mode.
 
 ### Commit
@@ -61,8 +61,8 @@ Developers log for todos and plans.
 - [x] Config field for author and email. If not provided, uses git config file by default.
 - [ ] Config field for adding either entire directory in a single commit (only if >1 file), or individual files.
 - [ ] Flag for verbose mode which prints out commit object.
-- [ ] Flag for specifying which dotfiles to commit.
-- [ ] Flag for specifying which dotfiles to ignore.
+- [x] Flag for specifying which dotfiles to commit.
+- [x] Flag for specifying which dotfiles to ignore.
 - [x] Flag for specifying commit message.
 - [ ] Flag for interactive mode.
 
