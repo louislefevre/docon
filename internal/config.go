@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -131,22 +130,10 @@ func applyFlags(config *configuration) error {
 	}
 
 	if included := viper.GetStringSlice("only"); len(included) > 0 {
-		config.Sources = make(map[string]*sourceStruct)
-
-		for _, include := range included {
-			var group string = ""
-			var path string = include
-
-			if strings.Contains(include, "@") {
-				if strings.Count(include, "@") > 1 {
-					return newError(nil, "You can only specify one group per path")
-				}
-
-				split := strings.Split(include, "@")
-				group, path = split[0], split[1]
+		for name, source := range config.Sources {
+			if !containsString(included, name) {
+				source.Ignore = true
 			}
-
-			config.Sources[group] = &sourceStruct{Path: path}
 		}
 	}
 
@@ -169,8 +156,6 @@ func parseConfig(config *configuration) error {
 	for name, group := range config.Sources {
 		if group.Ignore {
 			delete(config.Sources, name)
-			warning := newWarning(nil, fmt.Sprintf("Ignoring %s", name))
-			fmt.Println(warning)
 			continue
 		}
 

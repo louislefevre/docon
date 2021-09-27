@@ -19,6 +19,9 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().String("config", "", "config file (default is $HOME/.config/docon/config.yaml)")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
+
+	rootCmd.PersistentFlags().StringSliceP("only", "o", []string{}, "Only use these groups (config override)")
+	viper.BindPFlag("only", rootCmd.PersistentFlags().Lookup("only"))
 }
 
 func ExecuteRoot() int {

@@ -30,24 +30,12 @@ func SyncFiles(config *configuration) error {
 	return nil
 }
 
-func ShowDiffs(config *configuration, paths []string) {
+func ShowDiffs(config *configuration) {
 	dfs := config.allDotfiles
 
-	if len(paths) != 0 {
-		for _, path := range paths {
-			if df, ok := dfs.get(path); ok {
-				if diff := df.diff(); diff != "" {
-					fmt.Println(diff)
-				}
-			} else {
-				fmt.Printf("Could not show diff for %s: file is not being tracked\n", path)
-			}
-		}
-	} else {
-		for _, df := range dfs {
-			if diff := df.diff(); diff != "" {
-				fmt.Println(diff)
-			}
+	for _, df := range dfs {
+		if diff := df.diff(); diff != "" {
+			fmt.Println(diff)
 		}
 	}
 }

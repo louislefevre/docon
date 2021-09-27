@@ -5,14 +5,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var filePaths []string
-
 var diffCmd = &cobra.Command{
 	Use:   "diff",
 	Short: "Show changes",
 	Long:  `Show difference between system dotfiles and target dotfiles.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		filePaths = args
 		return executeDiff()
 	},
 }
@@ -27,6 +24,6 @@ func executeDiff() error {
 		return err
 	}
 
-	internal.ShowDiffs(config, filePaths)
+	internal.ShowDiffs(config)
 	return nil
 }
