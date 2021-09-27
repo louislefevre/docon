@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
@@ -157,6 +158,10 @@ func parseConfig(config *configuration) error {
 		if group.Ignore {
 			delete(config.Sources, name)
 			continue
+		}
+
+		if strings.TrimSpace(name) == "" {
+			return newError(nil, "Group name cannot be empty")
 		}
 
 		if group.Path == "" {

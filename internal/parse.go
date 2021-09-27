@@ -13,7 +13,7 @@ func gatherDotfiles(config *configuration) error {
 		var dfs dotfiles
 		var files []string
 
-		if (len(group.Included) != 0) {
+		if len(group.Included) != 0 {
 			for _, path := range group.Included {
 				if err := checkPath(path, nil); err != nil {
 					return newError(err, fmt.Sprintf("Failed to find files for %s, missing path %s", name, path))
@@ -24,6 +24,10 @@ func gatherDotfiles(config *configuration) error {
 			if err := filepath.Walk(group.Path, visit(&files, group.Excluded)); err != nil {
 				return newError(err, fmt.Sprintf("Failed to walk file tree for %s", name))
 			}
+		}
+
+		if name == "root" {
+			name = ""
 		}
 
 		for _, path := range files {

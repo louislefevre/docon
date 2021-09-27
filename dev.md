@@ -24,6 +24,7 @@ Developers log for todos and plans.
 - [x] Searched for in multiple file locations (~/.config/docon/ and current directory).
 - [x] Flag for specifying config file location.
 - [ ] Config field for renaming files; dictionary where keys are original file names and values are new file names. Files are renamed after being synced and before being committed.
+- [x] Special name for root directory.
 
 ### Interactive Mode
 - [ ] Adds extra step where all files are first listed with a numbered index.
