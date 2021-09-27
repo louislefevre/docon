@@ -46,6 +46,19 @@ func isDisjoint(s1 []string, s2 []string) bool {
 	return true
 }
 
+// Removes intersecting values from two string slices.
+// Values in s1 which are also in s2 are removed from s1.
+// Returns s1 with the values removed.
+func removeIntersecting(s1 []string, s2 []string) []string {
+	var s3 []string
+	for _, item := range s1 {
+		if !containsString(s2, item) {
+			s3 = append(s3, item)
+		}
+	}
+	return s3
+}
+
 // Formats a multiline string by removing leading whitespace and linebreaks.
 func multilineString(str string) string {
 	str = strings.TrimPrefix(str, "\n")
@@ -182,4 +195,34 @@ func checkTrees(paths []string, check func(fs.FileInfo) bool) error {
 		}
 	}
 	return nil
+}
+
+// Maps a slice of strings to corresponding groups, as identified by the @
+// symbol (e.g. "bash@my_file"). The groups are returned as keys in a map,
+// with their values as string slices containing each groups associated paths.
+func splitGroupPaths(paths []string) (map[string][]string, error) {
+	groupPaths := make(map[string][]string)
+
+	for _, include := range paths {
+		group := include
+		path := ""
+
+		if strings.Contains(include, "@") {
+			if strings.Count(include, "@") > 1 {
+				return nil, fmt.Errorf("can only specify one group per path")
+			}
+			split := strings.Split(include, "@")
+			group, path = split[0], split[1]
+		}
+
+		if _, ok := groupPaths[group]; !ok {
+			groupPaths[group] = []string{}
+		}
+
+		if path != "" {
+			groupPaths[group] = append(groupPaths[group], path)
+		}
+	}
+
+	return groupPaths, nil
 }

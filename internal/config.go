@@ -131,17 +131,37 @@ func applyFlags(config *configuration) error {
 	}
 
 	if included := viper.GetStringSlice("only"); len(included) > 0 {
+		groupPaths, err := splitGroupPaths(included)
+		if err != nil {
+			return newError(err, "Failed to parse --only arguments")
+		}
+
 		for name, source := range config.Sources {
-			if !containsString(included, name) {
+			if paths, ok := groupPaths[name]; ok {
+				if len(paths) > 0 {
+					source.Included = paths
+					source.Excluded = removeIntersecting(source.Excluded, paths)
+				}
+			} else {
 				source.Ignore = true
 			}
 		}
 	}
 
 	if excluded := viper.GetStringSlice("ignore"); len(excluded) > 0 {
+		groupPaths, err := splitGroupPaths(excluded)
+		if err != nil {
+			return newError(err, "Failed to parse --ignore arguments")
+		}
+
 		for name, source := range config.Sources {
-			if containsString(excluded, name) {
-				source.Ignore = true
+			if paths, ok := groupPaths[name]; ok {
+				if len(paths) > 0 {
+					source.Excluded = paths
+					source.Included = removeIntersecting(source.Included, paths)
+				} else {
+					source.Ignore = true
+				}
 			}
 		}
 	}
