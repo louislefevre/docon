@@ -113,3 +113,4 @@ Developers log for todos and plans.
 - [ ] Flag for removing version number from pkglist entries.
 - [ ] Flag for quiet mode where no output is printed.
 - [ ] Flag for including package history which, instead of replacing previous file, creates a new one with the date in file name (e.g. pkglist-26.06.21).
+- [x] Flag for dry run.

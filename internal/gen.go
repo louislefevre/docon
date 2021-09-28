@@ -32,14 +32,6 @@ func GenPackageList(config *configuration) error {
 	) 
 
 	defer fmt.Printf("%d Packages\n", len(systemPackagesList))
-	if len(addedPackagesList) == 0 && len(removedPackagesList) == 0 {
-		fmt.Println("Package list is up to date")
-		return nil
-	}
-
-	if err := ioutil.WriteFile(path, systemPackages, 0644); err != nil {
-		return newError(err, "Failed to write to package list")
-	}
 
 	if len(addedPackagesList) != 0 {
 		fmt.Printf("Added/Updated (%+d):\n", len(addedPackagesList))
@@ -49,6 +41,19 @@ func GenPackageList(config *configuration) error {
 	if len(removedPackagesList) != 0 {
 		fmt.Printf("Removed (-%d):\n", len(removedPackagesList))
 		displayPackages(removedPackagesList)
+	}
+
+	if len(addedPackagesList) == 0 && len(removedPackagesList) == 0 {
+		fmt.Println("Package list is up to date")
+		return nil
+	}
+
+	if config.dryRun {
+		return nil
+	}
+
+	if err := ioutil.WriteFile(path, systemPackages, 0644); err != nil {
+		return newError(err, "Failed to write to package list")
 	}
 
 	return nil
