@@ -12,31 +12,29 @@ import (
 )
 
 type configuration struct {
-	TargetPath  string                   `mapstructure:"target"`
-	PkglistPath string                   `mapstructure:"pkglist"`
-	Git         gitStruct                `mapstructure:"git"`
-	Sources     map[string]*sourceStruct `mapstructure:"sources"`
+	TargetPath  string `mapstructure:"target"`
+	PkglistPath string `mapstructure:"pkglist"`
+	Git         struct {
+		Dir       bool   `mapstructure:"dir"`
+		CommitMsg string `mapstructure:"msg"`
+		Author    struct {
+			name  string `mapstructure:"name"`
+			email string `mapstructure:"email"`
+		}
+	} `mapstructure:"git"`
+	Sources map[string]*struct {
+		Path      string   `mapstructure:"path"`
+		CommitMsg string   `mapstructure:"msg"`
+		Ignore    bool     `mapstructure:"ignore"`
+		Included  []string `mapstructure:"include"`
+		Excluded  []string `mapstructure:"exclude"`
+		dotfiles  dotfiles
+	} `mapstructure:"sources"`
+
+	// Internal configuration settings
 	allDotfiles dotfiles
 	dryRun      bool
 	summaryView bool
-}
-
-type gitStruct struct {
-	Dir       bool   `mapstructure:"dir"`
-	CommitMsg string `mapstructure:"msg"`
-	Author    struct {
-		name  string `mapstructure:"name"`
-		email string `mapstructure:"email"`
-	}
-}
-
-type sourceStruct struct {
-	Path      string   `mapstructure:"path"`
-	CommitMsg string   `mapstructure:"msg"`
-	Ignore    bool     `mapstructure:"ignore"`
-	Included  []string `mapstructure:"include"`
-	Excluded  []string `mapstructure:"exclude"`
-	dotfiles  dotfiles
 }
 
 func InitConfig() (*configuration, error) {
