@@ -14,17 +14,17 @@ var rootCmd = &cobra.Command{
 	Long:  `Docon is a command line tool used for maintaining Linux dotfiles.`,
 	SilenceErrors: true,
 	SilenceUsage: true,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("config", cmd.PersistentFlags().Lookup("config"))
+		viper.BindPFlag("only", cmd.PersistentFlags().Lookup("only"))
+		viper.BindPFlag("ignore", cmd.PersistentFlags().Lookup("ignore"))
+	},
 }
 
 func init() {
 	rootCmd.PersistentFlags().String("config", "", "config file (default is $HOME/.config/docon/config.yaml)")
-	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
-
 	rootCmd.PersistentFlags().StringSliceP("only", "o", []string{}, "Only use these groups (config override)")
-	viper.BindPFlag("only", rootCmd.PersistentFlags().Lookup("only"))
-
 	rootCmd.PersistentFlags().StringSliceP("ignore", "i", []string{}, "Ignore these groups (config override)")
-	viper.BindPFlag("ignore", rootCmd.PersistentFlags().Lookup("ignore"))
 }
 
 func ExecuteRoot() int {

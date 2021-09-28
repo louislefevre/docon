@@ -10,6 +10,11 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "Sync local dotfiles with repository",
 	Long:  `Retrieves all dotfiles from the system and updates them in the repository.`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("commit", cmd.PersistentFlags().Lookup("commit"))
+		viper.BindPFlag("message", cmd.PersistentFlags().Lookup("message"))
+		viper.BindPFlag("dry", cmd.PersistentFlags().Lookup("dry-run"))
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeSync()
 	},
@@ -17,14 +22,8 @@ var syncCmd = &cobra.Command{
 
 func init() {
 	syncCmd.PersistentFlags().BoolP("commit", "c", false, "Commit dotfiles after syncing")
-	viper.BindPFlag("commit", syncCmd.PersistentFlags().Lookup("commit"))
-
 	syncCmd.PersistentFlags().StringP("message", "m", "", "Global commit message (config override)")
-	viper.BindPFlag("message", syncCmd.PersistentFlags().Lookup("message"))
-
 	syncCmd.PersistentFlags().BoolP("dry-run", "d", false, "Run the command without actually changing anything")
-	viper.BindPFlag("dry", syncCmd.PersistentFlags().Lookup("dry-run"))
-
 	rootCmd.AddCommand(syncCmd)
 }
 
