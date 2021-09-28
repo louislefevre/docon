@@ -39,8 +39,14 @@ func ShowDiffs(config *configuration) {
 	dfs := config.allDotfiles
 
 	for _, df := range dfs {
-		if diff := df.diff(); diff != "" {
-			fmt.Println(diff)
+		if df.isUpToDate() {
+			continue
+		}
+
+		if config.summaryView {
+			fmt.Printf("%s (%+d lines)\n", df.targetFile.name, df.lineCountDiff())
+		} else {
+			fmt.Println(df.diff())
 		}
 	}
 }

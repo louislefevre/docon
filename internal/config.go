@@ -18,6 +18,7 @@ type configuration struct {
 	Sources     map[string]*sourceStruct `mapstructure:"sources"`
 	allDotfiles dotfiles
 	dryRun      bool
+	summaryView bool
 }
 
 type gitStruct struct {
@@ -129,6 +130,10 @@ func loadConfig(config *configuration) error {
 func applyFlags(config *configuration) error {
 	if dryRun := viper.GetBool("dry"); dryRun {
 		config.dryRun = true
+	}
+
+	if summaryView := viper.GetBool("summary"); summaryView {
+		config.summaryView = true
 	}
 
 	if commitMsg := viper.GetString("message"); commitMsg != "" {
