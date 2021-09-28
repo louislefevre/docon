@@ -16,6 +16,10 @@ func SyncFiles(config *configuration) error {
 		}
 		fmt.Printf("Updating %s (%+d lines)\n", df.targetFile.name, df.lineCountDiff())
 
+		if config.dryRun {
+			continue
+		}
+
 		if _, err := os.Stat(df.targetFile.path); os.IsNotExist(err) {
 			os.MkdirAll(filepath.Dir(df.targetFile.path), os.ModePerm)
 		} else if err != nil {
@@ -27,6 +31,7 @@ func SyncFiles(config *configuration) error {
 			return newError(err, fmt.Sprintf("Failed to write to %s", df.targetFile.path))
 		}
 	}
+
 	return nil
 }
 

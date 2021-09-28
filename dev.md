@@ -41,6 +41,7 @@ Developers log for todos and plans.
 - [x] Flag for specifying which dotfiles to sync.
 - [x] Flag for specifying which dotfiles to ignore.
 - [x] Flag for specifying commit message.
+- [x] Flag for dry run.
 - [ ] Flag for interactive mode.
 
 ### Diff

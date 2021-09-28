@@ -17,6 +17,7 @@ type configuration struct {
 	Git         gitStruct                `mapstructure:"git"`
 	Sources     map[string]*sourceStruct `mapstructure:"sources"`
 	allDotfiles dotfiles
+	dryRun      bool
 }
 
 type gitStruct struct {
@@ -126,6 +127,10 @@ func loadConfig(config *configuration) error {
 }
 
 func applyFlags(config *configuration) error {
+	if dryRun := viper.GetBool("dry"); dryRun {
+		config.dryRun = true
+	}
+
 	if commitMsg := viper.GetString("message"); commitMsg != "" {
 		config.Git.CommitMsg = commitMsg
 	}

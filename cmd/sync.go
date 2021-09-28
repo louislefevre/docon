@@ -22,6 +22,9 @@ func init() {
 	syncCmd.PersistentFlags().StringP("message", "m", "", "Global commit message (config override)")
 	viper.BindPFlag("message", syncCmd.PersistentFlags().Lookup("message"))
 
+	syncCmd.PersistentFlags().BoolP("dry-run", "d", false, "Run the command without actually changing anything")
+	viper.BindPFlag("dry", syncCmd.PersistentFlags().Lookup("dry-run"))
+
 	rootCmd.AddCommand(syncCmd)
 }
 
