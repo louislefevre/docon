@@ -9,7 +9,12 @@ import (
 )
 
 func GenPackageList(config *configuration) error {
-	path := filepath.Join(config.PkglistPath, "pkglist.txt")
+	var path string
+	if config.Pkglist.Name != "" {
+		path = filepath.Join(config.Pkglist.Path, config.Pkglist.Name)
+	} else {
+		path = filepath.Join(config.Pkglist.Path, "pkglist.txt")
+	}
 
 	var targetPackages []byte
 	if err := checkFile(path); err == nil {

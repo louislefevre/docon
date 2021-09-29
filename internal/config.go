@@ -12,7 +12,10 @@ import (
 
 type configuration struct {
 	TargetPath  string `mapstructure:"target"`
-	PkglistPath string `mapstructure:"pkglist"`
+	Pkglist struct {
+		Path string `mapstructure:"path"`
+		Name string `mapstructure:"name"`
+	} `mapstructure:"pkglist"`
 	Git         struct {
 		Dir       bool   `mapstructure:"dir"`
 		CommitMsg string `mapstructure:"msg"`
@@ -181,8 +184,8 @@ func parseConfig(config *configuration) error {
 		return newError(nil, "Target path has not been set")
 	}
 
-	if config.PkglistPath == "" {
-		config.PkglistPath = config.TargetPath
+	if config.Pkglist.Path == "" {
+		config.Pkglist.Path = config.TargetPath
 	}
 
 	if item, ok := containsValidKeywords(config.Git.CommitMsg, gitKeywords); !ok {
@@ -228,7 +231,7 @@ func verifyConfig(config *configuration) error {
 		return newError(err, "Failed to verify target path")
 	}
 
-	if err := checkDir(config.PkglistPath); err != nil {
+	if err := checkDir(config.Pkglist.Path); err != nil {
 		return newError(err, "Failed to verify package list path")
 	}
 
