@@ -117,7 +117,7 @@ func loadConfig(config *configuration) error {
 		}
 	}
 
-	if err := viper.UnmarshalExact(&config); err != nil {
+	if err := viper.Unmarshal(&config); err != nil {
 		return newError(err, "Failed to unmarshal config file")
 	}
 
