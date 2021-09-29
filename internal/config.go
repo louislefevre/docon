@@ -18,9 +18,9 @@ type configuration struct {
 		Dir       bool   `mapstructure:"dir"`
 		CommitMsg string `mapstructure:"msg"`
 		Author    struct {
-			name  string `mapstructure:"name"`
-			email string `mapstructure:"email"`
-		}
+			Name  string `mapstructure:"name"`
+			Email string `mapstructure:"email"`
+		} `mapstructure:"author"`
 	} `mapstructure:"git"`
 	Sources map[string]*struct {
 		Path      string   `mapstructure:"path"`
