@@ -35,18 +35,22 @@ func SyncFiles(config *configuration) error {
 	return nil
 }
 
-func ShowDiffs(config *configuration) {
-	dfs := config.allDotfiles
+func GetDiffs(config *configuration) []string {
+	var diffs []string
 
-	for _, df := range dfs {
+	for _, df := range config.allDotfiles {
 		if df.isUpToDate() {
 			continue
 		}
 
 		if config.summaryView {
-			fmt.Printf("%s (%+d lines)\n", df.targetFile.name, df.lineCountDiff())
+			diff := fmt.Sprintf("%s (%+d lines)", df.targetFile.name, df.lineCountDiff())
+			diffs = append(diffs, diff)
 		} else {
-			fmt.Println(df.diff())
+			diff := df.diff()
+			diffs = append(diffs, diff)
 		}
 	}
+
+	return diffs
 }

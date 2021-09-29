@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/louislefevre/docon/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -10,7 +12,7 @@ var diffCmd = &cobra.Command{
 	Use:   "diff",
 	Short: "Show changes",
 	Long:  `Show difference between system dotfiles and target dotfiles.`,
-	PreRun: func(cmd *cobra.Command, args []string ) {
+	PreRun: func(cmd *cobra.Command, args []string) {
 		viper.BindPFlag("only", cmd.PersistentFlags().Lookup("only"))
 		viper.BindPFlag("ignore", cmd.PersistentFlags().Lookup("ignore"))
 		viper.BindPFlag("summaryView", cmd.PersistentFlags().Lookup("summary"))
@@ -33,6 +35,10 @@ func executeDiff() error {
 		return err
 	}
 
-	internal.ShowDiffs(config)
+	diffs := internal.GetDiffs(config)
+	for _, diff := range diffs {
+		fmt.Println(diff)
+	}
+
 	return nil
 }
