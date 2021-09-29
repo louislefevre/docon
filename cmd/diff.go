@@ -11,6 +11,8 @@ var diffCmd = &cobra.Command{
 	Short: "Show changes",
 	Long:  `Show difference between system dotfiles and target dotfiles.`,
 	PreRun: func(cmd *cobra.Command, args []string ) {
+		viper.BindPFlag("only", cmd.PersistentFlags().Lookup("only"))
+		viper.BindPFlag("ignore", cmd.PersistentFlags().Lookup("ignore"))
 		viper.BindPFlag("summaryView", cmd.PersistentFlags().Lookup("summary"))
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -19,6 +21,8 @@ var diffCmd = &cobra.Command{
 }
 
 func init() {
+	diffCmd.PersistentFlags().StringSliceP("only", "o", []string{}, "Only show diff for these files (config override)")
+	diffCmd.PersistentFlags().StringSliceP("ignore", "i", []string{}, "Ignore these files (config override)")
 	diffCmd.PersistentFlags().BoolP("summary", "s", false, "Summary of the diff")
 	rootCmd.AddCommand(diffCmd)
 }
