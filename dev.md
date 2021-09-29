@@ -12,6 +12,9 @@ Developers log for todos and plans.
 - Try and improve handling of file walking limit.
   - Replace walk() with walkDir() for efficiency?
 - Add warning before syncing; list all files that are about to be synced, then wait for user confirmation.
+- Allow use of file paths for "path" config field.
+- Move gatherDotfiles call out of InitConfig().
+- Use viper.BindPFlags for binding flags.
 
 ### Resources
 - https://github.com/go-git/go-git
@@ -66,6 +69,7 @@ Developers log for todos and plans.
 - [x] Flag for specifying which dotfiles to commit.
 - [x] Flag for specifying which dotfiles to ignore.
 - [x] Flag for specifying commit message.
+- [ ] Flag for dry run.
 - [ ] Flag for interactive mode.
 
 ### Check
@@ -86,6 +90,7 @@ Developers log for todos and plans.
 - [ ] User specifies location and extension.
 - [ ] Flag for specifying which dotfiles to backup.
 - [ ] Flag for specifying which dotfiles to ignore.
+- [ ] Flag for dry run.
 - [ ] Flag for interactive mode.
 
 ### Rollback
@@ -97,6 +102,7 @@ Developers log for todos and plans.
 - [ ] Flag for specifying backup folder location and extension.
 - [ ] Flag for specifying which dotfiles to backup.
 - [ ] Flag for specifying which dotfiles to ignore.
+- [ ] Flag for dry run.
 - [ ] Flag for interactive mode.
 
 ### Restore
