@@ -188,6 +188,10 @@ func parseConfig(config *configuration) error {
 		config.Pkglist.Path = config.TargetPath
 	}
 
+	if item, ok := containsValidKeywords(config.Pkglist.Name, pkgKeywords); !ok {
+		return newError(nil, fmt.Sprintf("Pkglist name has invalid keyword %s", item))
+	}
+
 	if item, ok := containsValidKeywords(config.Git.CommitMsg, gitKeywords); !ok {
 		return newError(nil, fmt.Sprintf("Git message has invalid keyword %s", item))
 	}

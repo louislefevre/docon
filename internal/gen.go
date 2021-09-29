@@ -6,7 +6,20 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+const (
+	pkgDateKeyword   keywordType = "{date}"
+	pkgTimeKeyword   keywordType = "{time}"
+	pkgSystemKeyword keywordType = "{system}"
+)
+
+var pkgKeywords = keywordSet{
+	newKeyword(pkgDateKeyword),
+	newKeyword(pkgTimeKeyword),
+	newKeyword(pkgSystemKeyword),
+}
 
 func GenPackageList(config *configuration) error {
 	var path string
@@ -14,6 +27,23 @@ func GenPackageList(config *configuration) error {
 		path = filepath.Join(config.Pkglist.Path, config.Pkglist.Name)
 	} else {
 		path = filepath.Join(config.Pkglist.Path, "pkglist.txt")
+	}
+
+	for _, kw := range pkgKeywords {
+		switch kw.kwType {
+		case pkgDateKeyword:
+			currentDate := time.Now().Local().Format("2006-01-02")
+			path = kw.transform(path, currentDate)
+		case pkgTimeKeyword:
+			currentTime := time.Now().Local().Format("15:04:05")
+			path = kw.transform(path, currentTime)
+		case pkgSystemKeyword:
+			if system, err := getUserOS(); err == nil {
+				path = kw.transform(path, system)
+			} else {
+				return newError(err, "Failed to determine operating system")
+			}
+		}
 	}
 
 	var targetPackages []byte
@@ -34,7 +64,7 @@ func GenPackageList(config *configuration) error {
 		systemPackagesList  = strings.Split(string(systemPackages), "\n")
 		addedPackagesList   = difference(systemPackagesList, targetPackagesList)
 		removedPackagesList = difference(targetPackagesList, systemPackagesList)
-	) 
+	)
 
 	defer fmt.Printf("%d Packages\n", len(systemPackagesList))
 

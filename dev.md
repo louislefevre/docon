@@ -116,8 +116,8 @@ Developers log for todos and plans.
 - [x] Generates a packages list in target directory.
 - [x] Package list is generated based on Linux distribution being used.
 - [ ] Includes "Added", "Removed", and "Updated" sections when printing differences.
-- [ ] Config field for specifying package list name and location.
+- [x] Config field for specifying package list name and location.
+- [x] Config field for including time, date, and operating system name in package list name.
 - [ ] Flag for removing version number from pkglist entries.
 - [ ] Flag for quiet mode where no output is printed.
-- [ ] Flag for including package history which, instead of replacing previous file, creates a new one with the date in file name (e.g. pkglist-26.06.21).
 - [x] Flag for dry run.
