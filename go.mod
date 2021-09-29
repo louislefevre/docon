@@ -10,7 +10,6 @@ require (
 	github.com/kevinburke/ssh_config v1.1.0 // indirect
 	github.com/lithammer/dedent v1.1.0
 	github.com/mattn/go-colorable v0.1.10 // indirect
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/rogpeppe/go-internal v1.8.0
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/spf13/cobra v1.2.1
@@ -36,6 +35,7 @@ require (
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/onsi/gomega v1.16.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect

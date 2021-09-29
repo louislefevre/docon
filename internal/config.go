@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
@@ -92,7 +91,7 @@ func loadConfig(config *configuration) error {
 	if configFile := viper.GetString("config"); configFile != "" {
 		viper.SetConfigFile(configFile)
 	} else {
-		if home, err := homedir.Dir(); err == nil {
+		if home, err := os.UserHomeDir(); err == nil {
 			viper.AddConfigPath(fmt.Sprintf("%s/.config/docon/", home))
 		} else {
 			warning := newWarning(err, "Failed to find home directory")
