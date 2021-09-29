@@ -13,7 +13,7 @@ var syncCmd = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		viper.BindPFlag("commit", cmd.PersistentFlags().Lookup("commit"))
 		viper.BindPFlag("message", cmd.PersistentFlags().Lookup("message"))
-		viper.BindPFlag("dry", cmd.PersistentFlags().Lookup("dry-run"))
+		viper.BindPFlag("dryRun", cmd.PersistentFlags().Lookup("dry-run"))
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeSync()

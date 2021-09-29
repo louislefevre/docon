@@ -11,7 +11,7 @@ var diffCmd = &cobra.Command{
 	Short: "Show changes",
 	Long:  `Show difference between system dotfiles and target dotfiles.`,
 	PreRun: func(cmd *cobra.Command, args []string ) {
-		viper.BindPFlag("summary", cmd.PersistentFlags().Lookup("summary"))
+		viper.BindPFlag("summaryView", cmd.PersistentFlags().Lookup("summary"))
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executeDiff()

@@ -11,7 +11,7 @@ var pkgCmd = &cobra.Command{
 	Short: "Generate a list of installed packages",
 	Long:  `Retrieves a list of all packages installed on the system and sends it to a file in the target repository`,
 	PreRun: func(cmd *cobra.Command, args []string) {
-		viper.BindPFlag("dry", cmd.PersistentFlags().Lookup("dry-run"))
+		viper.BindPFlag("dryRun", cmd.PersistentFlags().Lookup("dry-run"))
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return executePkg()

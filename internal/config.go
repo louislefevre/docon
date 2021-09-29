@@ -118,7 +118,7 @@ func loadConfig(config *configuration) error {
 		}
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := viper.UnmarshalExact(&config); err != nil {
 		return newError(err, "Failed to unmarshal config file")
 	}
 
@@ -126,11 +126,11 @@ func loadConfig(config *configuration) error {
 }
 
 func applyFlags(config *configuration) error {
-	if dryRun := viper.GetBool("dry"); dryRun {
+	if dryRun := viper.GetBool("dryRun"); dryRun {
 		config.dryRun = true
 	}
 
-	if summaryView := viper.GetBool("summary"); summaryView {
+	if summaryView := viper.GetBool("summaryView"); summaryView {
 		config.summaryView = true
 	}
 
