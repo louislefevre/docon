@@ -121,3 +121,6 @@ Developers log for todos and plans.
 - [ ] Flag for removing version number from pkglist entries.
 - [ ] Flag for quiet mode where no output is printed.
 - [x] Flag for dry run.
+
+### Edit
+- [ ] Open a target file from the list of tracked dotfiles.
